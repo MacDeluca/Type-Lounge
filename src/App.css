@@ -13,17 +13,27 @@
   }
 }
 
-.App-header {
-  background-color: #282c34;
+.App {
+  background-color:  #282828;
+  overflow-x: hidden;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   font-size: calc(10px + 2vmin);
   color: white;
 }
-
+.App-header{
+  background-color:#32302f;
+  display: flex;
+  align-items: center;
+  color: #fbf1c7;
+}
+.App-footer{
+  left: 0;
+  bottom: 0;
+}
 .App-link {
   color: #61dafb;
 }
