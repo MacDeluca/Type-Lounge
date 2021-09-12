@@ -6,11 +6,16 @@ import { TypingCard } from './components/TypingCard';
 
 function App() {
   return (
-    <div className="App">
+    <>
     <Header/>
+
+    <div className="App">
       <TypingCard/>
-    <SpotifyFooter/>
     </div>
+    
+    <SpotifyFooter/>
+    </>
+    
   );
 }
 

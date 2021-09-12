@@ -1,113 +1,133 @@
 
-import { Card, TextField, makeStyles, Grid, Button, CardContent, Typography, LinearProgress } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Button, CardContent, Typography, LinearProgress, CardActions, IconButton } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { getTestWords, normalize, timer } from '../utility/helperFunctions';
-
+import { COLOURS } from '../utility/colours';
+import { getTestWords, normalize, start, end, calculateWpm } from '../utility/helperFunctions';
+import { HighScores } from './HighScores';
+const NUM_WORDS = 25;
 interface TypingCardProps {
 
 }
 export const TypingCard: React.FC<TypingCardProps> = () => {
     const style = useStyles();
     const [input, setInput] = useState('');
-    const [prevLen, setPrevLen] = useState(0);
     const [test, setTest] = useState<string[]>();
-    const [userString, setUserString] = useState('');
+    const [userString, setUserString] = useState<string[]>([]);
+    const [time, setTime] = useState<number>();
+    const [wpm, setWpm] = useState(-1);
+    const [wordCount, setWordCount] = useState(-1);
+    //60000 in a minute
+    if(userString.length > 0){
+        userString.length === 1 && start();
+        if(userString.length === test!.length){
+            let count = 0.00;
+            let collection = new Map();
+            userString.forEach((word, index)=> collection.set(index, word));
+            test!.forEach((word, index) => collection.get(index) === word && (count += 1));
+            wpm === -1 && setWpm(calculateWpm(count, time!));
+            wordCount === -1 && setWordCount(count);
+            console.log(wordCount, count);
+        }
+    }
+
     const setAndClear = (char: string) => {
         setInput(char);
-        // if(userString.length === 1) timer(true);
-        if(userString.length === test!.length -1) console.log(timer(false));
-        if(char.length > prevLen) {
-            setPrevLen(char.length);
-            setUserString(c=> c += char.slice(-1));
-        }
-        if(char.length < prevLen) {
-            setUserString(c=> c.slice(0,-1));
-            setPrevLen(char.length);
-        }
+        //userString.length === 0 && start();
         if(/\s/g.test(char)){
             setInput('');
-            setPrevLen(0);
+            setUserString(arr=>[...userString,char.slice(0,-1)]);
+            if(userString.length === test!.length-1){
+                setTime(end());
+            }
         }
     }
     const reset = () => {
         setInput('');
-        setUserString('');
-        setTest(getTestWords());
+        setUserString([]);
+        setTest(getTestWords(NUM_WORDS));
+        setTime(undefined);
+        setWordCount(-1);
+        setWpm(-1);
     }
     useEffect(() => {
         reset();
     }, [])
     return (
-        <Grid container direction="column" alignItems="center" spacing={3}>
+        <Grid container direction="column" alignItems="center" spacing={3} className={style.root}>
             <div>
                 <Grid item>
-                    {test && <LinearProgress value={normalize(userString.length, test.length)} color="secondary" variant="determinate" className={style.root} />}
+                    {test && <LinearProgress value={normalize(userString.length, test.length)} color="secondary" variant="determinate" className={style.typingCard} />}
                 </Grid>
-                <Grid item className={style.root}>
-                    <Card className={style.card}>
+                <Grid item className={style.typingCard}>
+                    <Card className={style.card} variant="outlined">
                         <CardContent>
-                            <Typography className={style.speed} gutterBottom>Speed 10 WPM</Typography>
+                            {time && <Typography className={style.wpm} gutterBottom>{wpm} WPM | {100*wordCount/NUM_WORDS}%</Typography>}
                             <Typography className={style.test}>
-                                {test && test.map((letter, index) => {
+                                {test && test.map((word, index) => {
                                     let color;
-                                    if (index < userString.length) {
-                                        color = (letter === userString[index] ? '#b8bb26' : '#fb4934');
+                                    if(index === userString.length){
+                                        color = COLOURS.textCurrent;
                                     }
-                                    return <span key={index} style={{ color: color }}>{letter}</span>
+                                    if (index < userString.length) {
+                                        color = (word === userString[index] ? COLOURS.textCorrect : COLOURS.textIncorrect);
+                                    }
+                                    return <span key={index} style={{ color: color}}>{word} </span>
                                 })}
                             </Typography>
                         </CardContent>
+                        <CardActions>
+                            <TextField className={style.textField} size="small" fullWidth inputProps={{ className: style.input }} variant="outlined" value={input} onChange={e=>setAndClear(e.target.value)} />
+                                <IconButton onClick={() => reset()} color="inherit">
+                                <ReplayRoundedIcon style={{ color: COLOURS.secondary }} fontSize="large" />
+                                </IconButton>
+                        </CardActions>
+                        
                     </Card>
                 </Grid>
+                {(time !== -1 && wpm !== -1) &&
+                                <Grid item>
+                                <HighScores wpm={wpm} accuracy={100*wordCount/NUM_WORDS}/>
+                            </Grid>
+                }
+
             </div>
-            <Grid item>
-                <Card className={style.card}>
-                    <TextField className={style.textField} inputProps={{ className: style.input }} variant="outlined" value={input} onChange={e=>setAndClear(e.target.value)} />
-                    <Button onClick={() => reset()}><ReplayRoundedIcon style={{ color: "#b8bb26" }} fontSize="large" /></Button>
-                </Card>
-            </Grid>
         </Grid>
     )
 }
 const useStyles = makeStyles({
     root: {
+        marginTop:'200px',
+    },
+    typingCard: {
         minWidth: 50,
         maxWidth: 600,
-        marginRight: 50,
-        marginLeft: 50
     },
     textField: {
         "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#b8bb26"
+            borderColor: COLOURS.secondary
         },
         "& .MuiInputLabel-outlined.Mui-focused": {
-            color: "#b8bb26"
+            color: COLOURS.secondary
         },
     },
     input: {
-        color: "#b8bb26"
+        color: COLOURS.primary
     },
     progress: {
         width: "50vw",
     },
-    speed: {
+    wpm: {
         textAlign: 'right',
-        color: "#b8bb26",
+        color: COLOURS.textCurrent,
     },
     test: {
         textAlign: 'left',
         fontSize: '18px',
     },
     card: {
-        backgroundColor: '#1d2021',
-        color: "#ebdbb2",
-        display: "flex",
-        alignItems: 'center',
-        flexDirection: 'row',
-        
-
-
+        backgroundColor: COLOURS.card,
+        color: COLOURS.primary,
     }
 })
