@@ -1,12 +1,24 @@
 
-import { Card, TextField, makeStyles, Grid, Button, CardContent, Typography, LinearProgress, CardActions, IconButton } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { COLOURS } from '../utility/colours';
-import { getTestWords, normalize, start, end, calculateWpm } from '../utility/helperFunctions';
+import { NUM_WORDS } from '../utility/constants';
+import { getTestWords, normalize, start, end, calculateWpm, getRandomQuote } from '../utility/helperFunctions';
 import { HighScores } from './HighScores';
-const NUM_WORDS = 25;
+
+const StyledLinearProgress = withStyles((theme: Theme) =>
+    createStyles({
+    colorPrimary: {
+        backgroundColor: COLOURS.card,
+    },
+    bar: {
+        backgroundColor: COLOURS.progressBarActive,
+    },
+}),
+)(LinearProgress);
+
 interface TypingCardProps {
 
 }
@@ -43,10 +55,11 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
             }
         }
     }
-    const reset = () => {
+    const reset = async () => {
+        let test = await getRandomQuote();
         setInput('');
         setUserString([]);
-        setTest(getTestWords(NUM_WORDS));
+        setTest(test);
         setTime(undefined);
         setWordCount(-1);
         setWpm(-1);
@@ -57,11 +70,9 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
     return (
         <Grid container direction="column" alignItems="center" spacing={3} className={style.root}>
             <div>
-                <Grid item>
-                    {test && <LinearProgress value={normalize(userString.length, test.length)} color="secondary" variant="determinate" className={style.typingCard} />}
-                </Grid>
-                <Grid item className={style.typingCard}>
+                <Box component={Grid} className={style.typingCard} boxShadow={4}>
                     <Card className={style.card} variant="outlined">
+                    {test && <StyledLinearProgress value={normalize(userString.length, test.length)} variant="determinate" />}
                         <CardContent>
                             {time && <Typography className={style.wpm} gutterBottom>{wpm} WPM | {100*wordCount/NUM_WORDS}%</Typography>}
                             <Typography className={style.test}>
@@ -79,26 +90,29 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                         </CardContent>
                         <CardActions>
                             <TextField className={style.textField} size="small" fullWidth inputProps={{ className: style.input }} variant="outlined" value={input} onChange={e=>setAndClear(e.target.value)} />
-                                <IconButton onClick={() => reset()} color="inherit">
+                                <IconButton onClick={() => reset()} color="inherit" size="small">
                                 <ReplayRoundedIcon style={{ color: COLOURS.secondary }} fontSize="large" />
                                 </IconButton>
                         </CardActions>
                         
                     </Card>
-                </Grid>
+                </Box>
                 {(time !== -1 && wpm !== -1) &&
-                                <Grid item>
-                                <HighScores wpm={wpm} accuracy={100*wordCount/NUM_WORDS}/>
-                            </Grid>
+                <Box component={Grid} boxShadow={4}>
+                    <HighScores wpm={wpm} accuracy={100*wordCount/NUM_WORDS}/>
+                </Box>
                 }
-
-            </div>
+                </div>
         </Grid>
     )
 }
 const useStyles = makeStyles({
     root: {
-        marginTop:'200px',
+        marginTop: 200,
+        marginRight: '10%',
+        marginLeft: '10%',
+        width: '80%',
+        marginBottom: 200
     },
     typingCard: {
         minWidth: 50,
@@ -114,9 +128,6 @@ const useStyles = makeStyles({
     },
     input: {
         color: COLOURS.primary
-    },
-    progress: {
-        width: "50vw",
     },
     wpm: {
         textAlign: 'right',

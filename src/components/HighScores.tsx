@@ -13,13 +13,13 @@ const StyledTableCell = withStyles({
     })(TableCell);
 const StyledTableCellWin = withStyles({
     root: {
-        color: COLOURS.secondary,
+        color: COLOURS.textCurrent,
         borderBottom: 'none'
     }
     })(TableCell);
 const StyledTableCellLose = withStyles({
     root: {
-        color: COLOURS.textCurrent,
+        color: COLOURS.secondary,
         borderBottom: 'none'
         
     }
@@ -35,7 +35,9 @@ export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
     const [scores, setScores] = useState<string[]>([]);
     useEffect(()=>{
         var dt = new Date();
-        let data = wpm.toString() + ',' + accuracy.toString() + ',' + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
+        let data = wpm.toString() + ',' 
+        + accuracy.toString() + ',' 
+        + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
         cookies.set(data, wpm, {path:'/'});
         let unordered = cookies.getAll();
         let ordered = Object.keys(unordered).sort(compareStringsAsNums)
@@ -47,9 +49,9 @@ export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
                 <Table size="small" aria-label="simple table" >
                     <TableHead>
                         <TableRow >
-                            <StyledTableCellWin color="inherit" >WPM</StyledTableCellWin>
-                            <StyledTableCellWin>Accuracy</StyledTableCellWin>
-                            <StyledTableCellWin>Date</StyledTableCellWin>
+                            <StyledTableCell>WPM</StyledTableCell>
+                            <StyledTableCell>Accuracy</StyledTableCell>
+                            <StyledTableCell>Date</StyledTableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -93,7 +95,7 @@ export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
 }
 const useStyles = makeStyles({
     root: {
-        marginTop: '20px', 
+        marginTop: 20,
     },
     table: {
         backgroundColor: COLOURS.card,

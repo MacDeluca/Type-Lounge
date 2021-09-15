@@ -1,10 +1,10 @@
-import { WORD_POOL } from "../constants";
+import { WORD_POOL } from "./constants";
 
-export function getTestWords(numWords?: number): string[]{
-    const shuffled = WORD_POOL.sort(() => 0.5 - Math.random());
-    let arrOut = shuffled.slice(0, numWords);
-    //return arrOut.join(' ').split('');
-    return arrOut;
+export function getTestWords(numWords?: number){
+    // old work!!!!!
+        let wordsArr = WORD_POOL.sort(() => 0.5 - Math.random());
+        let arrOut = wordsArr.slice(0, numWords);
+        return arrOut;
 }
 export const normalize = (value: number, len: number) => {
     if(value < len) return (value - 0) * 100 / (len - 0);
@@ -33,4 +33,12 @@ export function calculateWpm(wordCount: number, milliseconds: number) {
 }
 export function compareStringsAsNums(a: string, b: string) {
     return parseInt(b) - parseInt(a);
+}
+
+export async function getRandomQuote(){
+    const response = await fetch('https://api.quotable.io/random?minLength=100&maxLength=400')
+    const data = await response.json()
+    // console.log(`${data.content} —${data.author}`)
+    return(data.content.split(' '));
+    
 }
