@@ -1,11 +1,12 @@
 
-import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, Button } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { COLOURS } from '../utility/colours';
 import { NUM_WORDS } from '../utility/constants';
-import { getTestWords, normalize, start, end, calculateWpm, getRandomQuote } from '../utility/helperFunctions';
+import { SettingsContext } from '../utility/context';
+import { hardMode, normalize, start, end, calculateWpm, easyMode } from '../utility/helperFunctions';
 import { HighScores } from './HighScores';
 
 const StyledLinearProgress = withStyles((theme: Theme) =>
@@ -24,17 +25,19 @@ interface TypingCardProps {
 }
 export const TypingCard: React.FC<TypingCardProps> = () => {
     const style = useStyles();
+    const {settings, setSettings} = useContext(SettingsContext);
+
     const [input, setInput] = useState('');
     const [test, setTest] = useState<string[]>();
     const [userString, setUserString] = useState<string[]>([]);
     const [time, setTime] = useState<number>();
     const [wpm, setWpm] = useState(-1);
     const [wordCount, setWordCount] = useState(-1);
-    //60000 in a minute
+
     if(userString.length > 0){
         userString.length === 1 && start();
         if(userString.length === test!.length){
-            let count = 0.00;
+            let count = 0;
             let collection = new Map();
             userString.forEach((word, index)=> collection.set(index, word));
             test!.forEach((word, index) => collection.get(index) === word && (count += 1));
@@ -56,10 +59,10 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
         }
     }
     const reset = async () => {
-        let test = await getRandomQuote();
+        let test = settings.easyMode ? easyMode(settings.wordCount) : await hardMode();
+        setTest(test);
         setInput('');
         setUserString([]);
-        setTest(test);
         setTime(undefined);
         setWordCount(-1);
         setWpm(-1);
@@ -74,7 +77,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                     <Card className={style.card} variant="outlined">
                     {test && <StyledLinearProgress value={normalize(userString.length, test.length)} variant="determinate" />}
                         <CardContent>
-                            {time && <Typography className={style.wpm} gutterBottom>{wpm} WPM | {100*wordCount/NUM_WORDS}%</Typography>}
+                            {time && <Typography className={style.wpm} gutterBottom>{wpm} WPM | {100*wordCount/test!.length}%</Typography>}
                             <Typography className={style.test}>
                                 {test && test.map((word, index) => {
                                     let color;
@@ -99,7 +102,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                 </Box>
                 {(time !== -1 && wpm !== -1) &&
                 <Box component={Grid} boxShadow={4}>
-                    <HighScores wpm={wpm} accuracy={100*wordCount/NUM_WORDS}/>
+                    <HighScores wpm={wpm} accuracy={100*wordCount/test!.length}/>
                 </Box>
                 }
                 </div>

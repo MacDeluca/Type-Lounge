@@ -37,7 +37,7 @@ export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
         var dt = new Date();
         let data = wpm.toString() + ',' 
         + accuracy.toString() + ',' 
-        + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
+        var dateString = + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
         cookies.set(data, wpm, {path:'/'});
         let unordered = cookies.getAll();
         let ordered = Object.keys(unordered).sort(compareStringsAsNums)

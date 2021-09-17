@@ -1,16 +1,26 @@
-import { AppBar, Button, Drawer, Grid, IconButton, makeStyles, Toolbar, Typography, Theme, createStyles, List, ListItemIcon, ListItemText, ListItem } from '@material-ui/core';
+import { AppBar, Button, Drawer, Grid, IconButton, makeStyles, Toolbar, Typography, Theme, createStyles, List, ListItemIcon, ListItemText, ListItem, ListItemSecondaryAction, Switch, Divider } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-import { useState } from 'react';
+import PersonIcon from '@material-ui/icons/Person';
+import { useContext, useState } from 'react';
 import { COLOURS } from '../utility/colours';
+import InvertColorsIcon from '@material-ui/icons/InvertColors';
+import SpeedIcon from '@material-ui/icons/Speed';
+import ImportExportIcon from '@material-ui/icons/ImportExport';
+import { SettingsContext } from '../utility/context';
+import PlaylistPlayIcon from '@material-ui/icons/PlaylistPlay';
 export const Header: React.FC = () => {
     const style = useStyles();
+    const {settings, setSettings} = useContext(SettingsContext);
+    console.log(settings);
     const [show, setShow] = useState(false);
     const settingsDrawer = () => (
+        <div>
         <List>
             <ListItem button>
                 <ListItemText primary={'User Name'}/>
             </ListItem>
         </List>
+        </div>
     )
     return (
             <div>
@@ -24,8 +34,51 @@ export const Header: React.FC = () => {
                         </Typography>
                     </Toolbar>
                 </AppBar>
+                
                 <Drawer anchor={'left'} open={show} onClose={()=>setShow(false)} classes={{paper: style.paper}}>
-                    {settingsDrawer}
+                    <List>
+                        <ListItem>
+                            <ListItemText primary={'Settings'}/>
+                        </ListItem>
+                        <Divider/>
+                        <ListItem button>
+                            <ListItemIcon><PersonIcon style={{color:COLOURS.primary}}/></ListItemIcon>
+                            <ListItemText primary={settings.name}/>
+                        </ListItem>
+                        <ListItem>
+                        <ListItemIcon><InvertColorsIcon style={{color:COLOURS.primary}}/></ListItemIcon>
+                            <ListItemText primary={'Dark Mode'}/>
+                            <ListItemSecondaryAction>
+                                <Switch
+                                    edge="end"
+                                    checked={settings.darkMode}
+                                    onChange={()=>setSettings({...settings, darkMode:!settings.darkMode})}
+                                />
+                        </ListItemSecondaryAction>
+                        </ListItem>
+                        <ListItem>
+                        <ListItemIcon><SpeedIcon style={{color:COLOURS.primary}}/></ListItemIcon>
+                            <ListItemText primary={'Easy Mode'}/>
+                                <ListItemSecondaryAction>
+                                <Switch
+                                    edge="end"
+                                    checked={settings.easyMode}
+                                    onChange={()=>setSettings({...settings, easyMode:!settings.easyMode})}
+                                />
+                        </ListItemSecondaryAction>
+                        </ListItem>
+                        {settings.easyMode && 
+                            <ListItem button>
+                            <ListItemIcon><ImportExportIcon style={{color:COLOURS.primary}}/></ListItemIcon>
+                                <ListItemText primary={'Word Count'}/>
+                            </ListItem>
+                        }
+                        <ListItem button>
+                            <ListItemIcon><PlaylistPlayIcon style={{color:COLOURS.primary}}/></ListItemIcon>
+                            <ListItemText primary={'Change Playlist'}/>
+                        </ListItem>
+                        <Divider/>
+                    </List>
                 </Drawer>
             </div>
     );
@@ -45,7 +98,8 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         paper: {
             background: COLOURS.card,
-            color: COLOURS.primary
+            color: COLOURS.primary,
+            minWidth: '25%'
         }
     }),
 );
