@@ -1,10 +1,9 @@
-import { Card, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import { Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
 import { COLOURS } from "../utility/colours";
-import Cookies from 'universal-cookie';
 import {Score} from '../utility/types';
 import { useEffect, useState } from "react";
-import { ImportantDevicesTwoTone } from "@material-ui/icons";
-import { compareStringsAsNums } from "../utility/helperFunctions";
+import { storeScores } from "../utility/helperFunctions";
+import Cookies from "universal-cookie";
 const StyledTableCell = withStyles({
     root: {
         color: COLOURS.primary,
@@ -24,69 +23,51 @@ const StyledTableCellLose = withStyles({
         
     }
     })(TableCell);
-
 interface HighScoresProps {
     wpm: number,
     accuracy: number
 }
+interface RenderRowsProps {
+    Component: React.ComponentType<any>;
+    score: Score;
+    index: number;
+}
+const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index}) => {
+
+    return(
+        <TableRow>
+        <Component>{index}</Component>
+        <Component component='th' scope='row'>{score.wpm}</Component>
+        <Component>{score.accuracy}</Component>
+        <Component>{score.date}</Component>
+        </TableRow>
+    )
+}
 export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
     const styles = useStyles();
-    const cookies = new Cookies();
-    const [scores, setScores] = useState<string[]>([]);
-    useEffect(()=>{
-        var dt = new Date();
-        let data = wpm.toString() + ',' 
-        + accuracy.toString() + ',' 
-        var dateString = + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
-        cookies.set(data, wpm, {path:'/'});
-        let unordered = cookies.getAll();
-        let ordered = Object.keys(unordered).sort(compareStringsAsNums)
-        setScores(ordered);
-    },[wpm, accuracy])
+    const [scores, setScores] = useState<Score[]>([]);
+    useEffect(()=>setScores(storeScores(wpm,accuracy)),[wpm, accuracy])
     return(
         <div className={styles.root}>
             <TableContainer component={Card} variant="outlined" className={styles.table}>
                 <Table size="small" aria-label="simple table" >
                     <TableHead>
                         <TableRow >
-                            <StyledTableCell>WPM</StyledTableCell>
-                            <StyledTableCell>Accuracy</StyledTableCell>
-                            <StyledTableCell>Date</StyledTableCell>
+                            <StyledTableCellWin>#</StyledTableCellWin>
+                            <StyledTableCellWin>WPM</StyledTableCellWin>
+                            <StyledTableCellWin>Accuracy</StyledTableCellWin>
+                            <StyledTableCellWin>Date</StyledTableCellWin>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                     {scores.map((score, index) => {
-                        let data = score.split(',')
                         if(index === 0){
-                            if(wpm >= parseInt(data[0])){
-                                return(
-                                    <TableRow key={score}>
-                                    <StyledTableCellWin component='th' scope='row'>{data[0]}</StyledTableCellWin>
-                                    <StyledTableCellWin>{data[1]}</StyledTableCellWin>
-                                    <StyledTableCellWin>{data[2]}</StyledTableCellWin>
-                                </TableRow>
-                                )
-                            }
+                            if(wpm >= score.wpm) return <StyledRows key={index} Component={StyledTableCellWin} score={score} index={index + 1}/>
                         }else{
-                            if(parseInt(data[0]) === wpm){
-                                return(
-                                    <TableRow key={score}>
-                                    <StyledTableCellLose component='th' scope='row'>{data[0]}</StyledTableCellLose>
-                                    <StyledTableCellLose>{data[1]}</StyledTableCellLose>
-                                    <StyledTableCellLose>{data[2]}</StyledTableCellLose>
-                                    </TableRow>
-                                        )
-                            }
+                            if(score.wpm === wpm) return <StyledRows key={index} Component={StyledTableCellLose} score={score} index={index + 1}/>
                         }
-                        return(
-                            <TableRow key={score}>
-                            <StyledTableCell component='th' scope='row'>{data[0]}</StyledTableCell>
-                            <StyledTableCell>{data[1]}</StyledTableCell>
-                            <StyledTableCell>{data[2]}</StyledTableCell>
-                        </TableRow>
-                        )
-                    }
-                    )}
+                        return <StyledRows key={index} Component={StyledTableCell} score={score} index={index + 1}/>
+                    })}
                     </TableBody>
                 </Table>
             </TableContainer> 
