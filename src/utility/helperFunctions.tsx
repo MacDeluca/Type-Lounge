@@ -96,7 +96,9 @@ export const storeScores = (wpm?: number, accuracy?: number) => {
     var dt = new Date();
     var dateString = + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
     let storedScores = cookies.get(COOKIE_SCORES)
-    if(!wpm ?? !accuracy){
+    console.log(wpm, accuracy)
+    if(!wpm || !accuracy){
+        console.log('showing scores')
         return storedScores;
     }
     let score = { wpm: wpm, accuracy: accuracy, date: dateString, name: 'hello' };
@@ -116,5 +118,13 @@ export const storeScores = (wpm?: number, accuracy?: number) => {
         let sortedScores = storedScores.sort((a: Score, b: Score) => b.wpm - a.wpm)
         cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
         return sortedScores
+    }
+}
+
+export const renderScores = (stickyScores: boolean, wpm: number) => {
+    if(stickyScores){
+        return true
+    }else{
+        return wpm > 0
     }
 }

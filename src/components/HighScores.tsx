@@ -1,9 +1,10 @@
 import { Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
 import { COLOURS } from "../utility/colours";
 import {Score} from '../utility/types';
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { storeScores } from "../utility/helperFunctions";
 import Cookies from "universal-cookie";
+import { SettingsContext } from "../utility/context";
 const StyledTableCell = withStyles({
     root: {
         color: COLOURS.primary,
@@ -45,8 +46,9 @@ const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index}) => {
 }
 export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
     const styles = useStyles();
+    const {settings} = useContext(SettingsContext);
     const [scores, setScores] = useState<Score[]>([]);
-    useEffect(()=>setScores(storeScores(wpm,accuracy)),[wpm, accuracy])
+    useEffect(()=>setScores(storeScores(wpm,accuracy)),[wpm, accuracy, settings.stickyScores])
     return(
         <div className={styles.root}>
             <TableContainer component={Card} variant="outlined" className={styles.table}>

@@ -27,18 +27,18 @@ export const darkTheme: ThemeOptions = createTheme({
     palette: {
         type: 'dark',
         primary: {
-            main: '#83a598',
+            main: '#fe8019',
             dark: '#32302f',
         },
         secondary: {
-            main: '#f50057',
+            main: '#83a598',
         },
         text: {
             primary: '#fbf1c7',
             secondary: '#b8bb26',
         },
         error: {
-            main: '#fe8019',
+            main: '#fb4934',
         },
         background: {
             paper: '#1d2021',
