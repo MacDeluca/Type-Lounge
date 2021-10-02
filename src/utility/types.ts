@@ -3,7 +3,7 @@ export interface Score {
     wpm: number;
     accuracy: number;
     date: string;
-    name: string;
+    id: string;
 }
 export interface ReducerAction {
     type: string;
@@ -16,9 +16,8 @@ export interface TypingInitialState {
     test: string[];
     userString: string[];
     time: number | undefined;
-    wpm: number;
-    wordCount: number;
     author: string;
+    score: Score | null;
 }
 
 export interface ColourTheme {

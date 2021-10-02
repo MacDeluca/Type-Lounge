@@ -81,7 +81,8 @@ export const Header: React.FC = () => {
                             dispatch({type: 'setMsg', payLoad: settings.easyMode ? 'Hard Mode Enabled' : 'Easy Mode Enabled'})
                             }}>
                         <ListItemIcon><SpeedIcon/></ListItemIcon>
-                            <ListItemText primary={settings.easyMode ? 'Easy Mode' : 'Hard Mode'}/>
+                            <ListItemText>Difficulty | <span style={{color: palette.text.secondary}}>
+                                {settings.easyMode ? 'Easy' : 'Hard'}</span></ListItemText>
                         </ListItem>
                         <ListItem button onClick={()=>dispatch({type: 'toggleShowPlaylist'})}>
                             <ListItemIcon><PlaylistPlayIcon /></ListItemIcon>
@@ -129,14 +130,12 @@ export const Header: React.FC = () => {
                             <ListItem>
                                 <ListItemText primary={'High Score Settings'} style={{color: palette.text.secondary}}/>
                             </ListItem>
-                            <ListItem button onClick={()=>dispatch({type: 'resetScores'})}>
+                            <ListItem button onClick={()=>{
+                                dispatch({type: 'resetScores'})
+                                setSettings({...settings, reset: !settings.reset})
+                                }}>
                             <ListItemIcon><ImportExportIcon/></ListItemIcon>
                                 <ListItemText>Reset High Scores</ListItemText>
-                            </ListItem>
-                            <ListItem button onClick={()=>setSettings(
-                                {...settings, wordCount: index < NUM_WORDS.length - 1 ? NUM_WORDS[index + 1] : NUM_WORDS[0]})}>
-                            <ListItemIcon><ImportExportIcon/></ListItemIcon>
-                                <ListItemText>Number of Scores | <span style={{color: palette.text.secondary}}>{NUM_HIGH_SCORES}</span></ListItemText>
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 setSettings({...settings, stickyScores: !settings.stickyScores})

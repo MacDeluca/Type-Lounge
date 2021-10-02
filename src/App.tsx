@@ -7,7 +7,7 @@ import { UserNameModal } from './components/partials/UserNameModal';
 import { SpotifyFooter } from './components/SpotifyFooter';
 import { TypingCard } from './components/TypingCard';
 import { darkTheme, lightTheme } from './utility/colours';
-import { NUM_WORDS, COOKIE_SETTINGS } from './utility/constants';
+import { NUM_WORDS, COOKIE_SETTINGS, NUM_HIGH_SCORES } from './utility/constants';
 import { SettingsContext, ISettings } from './utility/context';
 
 function App() {
@@ -18,7 +18,8 @@ function App() {
       playlist: 'lo-fi',
       wordCount: NUM_WORDS[0],
       darkMode: true,
-      stickyScores: false,
+      stickyScores: true,
+      reset: false,
   }
   );
   // const [colourTheme, setColourTheme] = useState<ColourTheme>();
@@ -42,7 +43,4 @@ function App() {
 }
 
 export default App;
-function COOKIES_SETTINGS(COOKIES_SETTINGS: any, arg1: string, arg2: { path: string; }) {
-  throw new Error('Function not implemented.');
-}
 

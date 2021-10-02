@@ -3,6 +3,8 @@ import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, Linear
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { useContext, useEffect, useReducer, useRef } from 'react';
+import { v4 } from 'uuid';
+import { TYPING_CARD_INITIAL_STATE } from '../utility/constants';
 import { SettingsContext } from '../utility/context';
 import { hardMode, normalize, start, easyMode, typingCardReducer, renderScores } from '../utility/helperFunctions';
 import { HighScores } from './HighScores';
@@ -26,20 +28,9 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
     const style = useStyles(theme);
     const inputRef = useRef<HTMLInputElement>(null);
     const {settings, setSettings} = useContext(SettingsContext);
-    const [state, dispatch] = useReducer(typingCardReducer, {
-        input: '',
-        test: [],
-        userString: [],
-        time: undefined,
-        wpm: -1,
-        wordCount: -1,
-        author: ''
-    });
-    const {input, test, userString, time, wpm, wordCount, author} = state;
-    
+    const [state, dispatch] = useReducer(typingCardReducer, TYPING_CARD_INITIAL_STATE);
+    const {input, test, userString, time, author, score} = state;
     if(input.length === 1 && userString.length === 0) start();
-    if(userString.length === test!.length && (wpm && wordCount === -1)) dispatch({type: 'calculate'});
-    
     const reset = async () => {
         inputRef.current?.focus();
         dispatch({type: 'reset', payLoad: settings.easyMode ? easyMode(settings.wordCount) : await hardMode()})
@@ -49,10 +40,10 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
     }, [settings.wordCount, settings.easyMode, settings.stickyScores])
     return (
         <Grid container direction="column" alignItems="center" spacing={3} className={style.root}>
-            <div>
-            {wpm > 0 ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
-                <span style={{color:theme.palette.primary.main}}>{wpm}</span> wpm  | 
-                <span style ={{color:theme.palette.primary.main}}> {(100*wordCount/test!.length).toFixed(0)}</span> % | 
+            <div className={style.card}>
+            {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
+                <span style={{color:theme.palette.primary.main}}>{score.wpm}</span> wpm  | 
+                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % | 
                 <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs
                 </Typography>
                 : <Typography gutterBottom style={{color: 'transparent'}}>.</Typography>
@@ -89,11 +80,11 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                         
                     </Card>
                 </Box>
-                {renderScores(settings.stickyScores, wpm) &&
                 <Box component={Grid} boxShadow={4}>
-                    <HighScores wpm={wpm} accuracy={100*wordCount/test!.length}/>
+                    <HighScores score={score} />
                 </Box>
-                }
+
+
                 </div>
         </Grid>
     )
@@ -106,6 +97,10 @@ createStyles({
         marginLeft: '10%',
         width: '80%',
         marginBottom: 200,
+    },
+    card: {
+        minWidth: 50,
+        maxWidth: 600,
     },
     textField: {
         "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {

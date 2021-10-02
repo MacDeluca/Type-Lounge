@@ -1,5 +1,6 @@
-import Cookies from "universal-cookie";
-import { COOKIE_SCORES, NUM_HIGH_SCORES, WORD_POOL } from "./constants";
+import Cookies, { Cookie } from "universal-cookie";
+import { v4 } from "uuid";
+import { COOKIE_SCORES, NUM_HIGH_SCORES, TYPING_CARD_INITIAL_STATE, WORD_POOL } from "./constants";
 import { ReducerAction, Score, TypingInitialState } from "./types";
 
 export const normalize = (value: number, len: number) => {
@@ -48,17 +49,15 @@ export function easyMode(numWords?: number){
 export function typingCardReducer(state: TypingInitialState, action: ReducerAction): TypingInitialState{
     const {type, payLoad} = action;
     const {userString, test, time} = state;
+    var dt = new Date();
+    let dateString =+ dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
     switch(type){
         case 'reset':
             return {
-                ...state,
-                input: '',
+                ...TYPING_CARD_INITIAL_STATE,
                 test: payLoad.content,
-                userString: [],
-                time: undefined,
-                wpm: -1,
-                wordCount: -1,
-                author: payLoad.author
+                author: payLoad.author,
+                score: null,
             }
         case 'setAndClear':
             let output = {...state, input: payLoad};
@@ -69,62 +68,56 @@ export function typingCardReducer(state: TypingInitialState, action: ReducerActi
                     userString: [...userString,payLoad.slice(0,-1)]
                 }
                 if(userString.length === test!.length - 1){
+                    let count = 0;
+                    let time = end();
+                    let collection = new Map();
+                    output.userString.forEach((word, index)=> collection.set(index, word));
+                    test!.forEach((word, index) => collection.get(index) === word && (count += 1));
                     output = {
                         ...output,
-                        time: end()
+                        time: time,
+                        score: {
+                            wpm: calculateWpm(count, time),
+                            accuracy: parseInt((100*count/test!.length).toFixed(0)),
+                            id: v4(),
+                            date: dateString,
+                        }
                     }
                 }
             }
             return output
-        case 'calculate':
-                let count = 0;
-                let collection = new Map();
-                userString.forEach((word, index)=> collection.set(index, word));
-                test!.forEach((word, index) => collection.get(index) === word && (count += 1));
-        return {
-            ...state, 
-            wpm: calculateWpm(count, time!), 
-            wordCount: count
-        }
         default:
             return state;
     }
 }
 
-export const storeScores = (wpm?: number, accuracy?: number) => {
-    const cookies = new Cookies();
-    var dt = new Date();
-    var dateString = + dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    let storedScores = cookies.get(COOKIE_SCORES)
-    console.log(wpm, accuracy)
-    if(!wpm || !accuracy){
-        console.log('showing scores')
-        return storedScores;
-    }
-    let score = { wpm: wpm, accuracy: accuracy, date: dateString, name: 'hello' };
-    if (!storedScores) {
-        cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
-        return [score]
-    } else {
-        console.log(storedScores[storedScores.length - 1]);
-        if (storedScores.length < NUM_HIGH_SCORES) {
-            storedScores.push(score);
-        } else {
-            if (score.wpm! > storedScores[storedScores.length - 1].wpm) {
+export const getCookieScores = (score: Score) => {
+            const cookies = new Cookies();
+            const storedScores = cookies.get(COOKIE_SCORES);
+            console.log(score.wpm, storedScores[storedScores.length - 1].wpm)
+            if (storedScores.length < NUM_HIGH_SCORES) {
+                storedScores.push(score);
+            }
+            if (score.wpm > storedScores[storedScores.length - 1].wpm) {
                 storedScores.pop();
                 storedScores.push(score);
             }
+            let sortedScores = storedScores.sort((a: Score, b: Score) => b.wpm - a.wpm)
+            cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
+            return sortedScores  
         }
-        let sortedScores = storedScores.sort((a: Score, b: Score) => b.wpm - a.wpm)
-        cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
-        return sortedScores
-    }
-}
 
-export const renderScores = (stickyScores: boolean, wpm: number) => {
-    if(stickyScores){
+
+export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null) => {
+    if(stickyScores && scores) {
+        console.log('1')
         return true
-    }else{
-        return wpm > 0
     }
+    if(!stickyScores && score){
+        console.log('2')
+        return true
+    } 
+    else{
+        console.log('3')
+    } return false
 }

@@ -3,6 +3,21 @@ export const NUM_WORDS = [3, 5, 10, 25, 50, 100, 150, 200];
 export const NUM_HIGH_SCORES = 10;
 export const COOKIE_SCORES = 'scores-typeLounge';
 export const COOKIE_SETTINGS = 'settings-typeLounge';
+export const SCORE_INITIAL_STATE = {
+    id: '',
+    date: '',
+    wpm: -1,
+    accuracy: -1,
+}
+export const TYPING_CARD_INITIAL_STATE = {
+input: '',
+test: [],
+userString: [],
+time: undefined,
+author: '',
+score: null,
+executed: false,
+}
 export const WORD_POOL = ['the',
 'of',
 'to',

@@ -2,9 +2,10 @@ import { Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHea
 import { COLOURS } from "../utility/colours";
 import {Score} from '../utility/types';
 import { useContext, useEffect, useState } from "react";
-import { storeScores } from "../utility/helperFunctions";
+import { renderScores, getCookieScores } from "../utility/helperFunctions";
 import Cookies from "universal-cookie";
 import { SettingsContext } from "../utility/context";
+import { COOKIE_SCORES } from "../utility/constants";
 const StyledTableCell = withStyles({
     root: {
         color: COLOURS.primary,
@@ -24,10 +25,7 @@ const StyledTableCellLose = withStyles({
         
     }
     })(TableCell);
-interface HighScoresProps {
-    wpm: number,
-    accuracy: number
-}
+
 interface RenderRowsProps {
     Component: React.ComponentType<any>;
     score: Score;
@@ -44,14 +42,31 @@ const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index}) => {
         </TableRow>
     )
 }
-export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
+interface HighScoresProps {
+    score: Score | null;
+}
+export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     const styles = useStyles();
     const {settings} = useContext(SettingsContext);
-    const [scores, setScores] = useState<Score[]>([]);
-    useEffect(()=>setScores(storeScores(wpm,accuracy)),[wpm, accuracy, settings.stickyScores])
+    const cookies = new Cookies();
+    const [scores, setScores] = useState<Score[] | null>(cookies.get(COOKIE_SCORES) ?? null);
+    useEffect(()=>{
+        if(!scores && score) {
+            cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
+            setScores([score]);
+        }
+        if(scores && score){
+            setScores(getCookieScores(score));
+            console.log(scores, score)
+        }
+        
+        
+    },[score, settings.stickyScores, settings.reset])
+    console.log(scores);
     return(
         <div className={styles.root}>
-            <TableContainer component={Card} variant="outlined" className={styles.table}>
+            {renderScores(scores, settings.stickyScores, score) && 
+                <TableContainer component={Card} variant="outlined" className={styles.table}>
                 <Table size="small" aria-label="simple table" >
                     <TableHead>
                         <TableRow >
@@ -62,17 +77,18 @@ export const HighScores: React.FC<HighScoresProps> = ({wpm, accuracy}) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                    {scores.map((score, index) => {
+                    {scores!.map((item, index) => {
                         if(index === 0){
-                            if(wpm >= score.wpm) return <StyledRows key={index} Component={StyledTableCellWin} score={score} index={index + 1}/>
+                            if(score && score.wpm >= item.wpm) return <StyledRows key={index} Component={StyledTableCellWin} score={item} index={index + 1}/>
                         }else{
-                            if(score.wpm === wpm) return <StyledRows key={index} Component={StyledTableCellLose} score={score} index={index + 1}/>
+                            if(score && item.id === score.id) return <StyledRows key={index} Component={StyledTableCellLose} score={item} index={index + 1}/>
                         }
-                        return <StyledRows key={index} Component={StyledTableCell} score={score} index={index + 1}/>
+                        return <StyledRows key={index} Component={StyledTableCell} score={item} index={index + 1}/>
                     })}
                     </TableBody>
                 </Table>
             </TableContainer> 
+            }
         </div>
     )
 }
