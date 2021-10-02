@@ -52,7 +52,6 @@ export const Header: React.FC = () => {
     });
     const {showDrawer, showPlaylists, showScoresMods, showAlert, msg} = state;
     let index = NUM_WORDS.indexOf(settings.wordCount);
-    console.log(settings);
     return (
             <div>
                 <AppBar style={{backgroundColor: palette.primary.dark}}>
@@ -132,7 +131,7 @@ export const Header: React.FC = () => {
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 dispatch({type: 'resetScores'})
-                                setSettings({...settings, reset: !settings.reset})
+                                setSettings({...settings, reset: true})
                                 }}>
                             <ListItemIcon><ImportExportIcon/></ListItemIcon>
                                 <ListItemText>Reset High Scores</ListItemText>

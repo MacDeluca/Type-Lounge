@@ -92,7 +92,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
     root: {
-        marginTop: 200,
+        marginTop: 150,
         marginRight: '10%',
         marginLeft: '10%',
         width: '80%',

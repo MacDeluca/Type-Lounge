@@ -19,7 +19,6 @@ export function end() {
     endTime = performance.now();
     var timeDiff = endTime - startTime; //in ms 
     var seconds = Math.round(timeDiff);
-    console.log(seconds + "milliseconds");
     return seconds;
 }
 
@@ -94,7 +93,6 @@ export function typingCardReducer(state: TypingInitialState, action: ReducerActi
 export const getCookieScores = (score: Score) => {
             const cookies = new Cookies();
             const storedScores = cookies.get(COOKIE_SCORES);
-            console.log(score.wpm, storedScores[storedScores.length - 1].wpm)
             if (storedScores.length < NUM_HIGH_SCORES) {
                 storedScores.push(score);
             }
@@ -108,7 +106,8 @@ export const getCookieScores = (score: Score) => {
         }
 
 
-export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null) => {
+export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null, reset?: boolean) => {
+    if(reset) return false;
     if(stickyScores && scores) {
         console.log('1')
         return true

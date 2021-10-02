@@ -47,25 +47,30 @@ interface HighScoresProps {
 }
 export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     const styles = useStyles();
-    const {settings} = useContext(SettingsContext);
+    const {settings, setSettings} = useContext(SettingsContext);
     const cookies = new Cookies();
     const [scores, setScores] = useState<Score[] | null>(cookies.get(COOKIE_SCORES) ?? null);
     useEffect(()=>{
-        if(!scores && score) {
-            cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
-            setScores([score]);
+        if(settings.reset){
+            setSettings({...settings, reset: false});
+            setScores(null);
+        }else{
+            if(!scores && score) {
+                cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
+                setScores([score]);
+            }
+            if(scores && score){
+                setScores(getCookieScores(score));
+            }
         }
-        if(scores && score){
-            setScores(getCookieScores(score));
-            console.log(scores, score)
-        }
+
+
         
         
-    },[score, settings.stickyScores, settings.reset])
-    console.log(scores);
+    },[score, settings.stickyScores])
     return(
         <div className={styles.root}>
-            {renderScores(scores, settings.stickyScores, score) && 
+            {renderScores(scores, settings.stickyScores, score, settings.reset) && 
                 <TableContainer component={Card} variant="outlined" className={styles.table}>
                 <Table size="small" aria-label="simple table" >
                     <TableHead>
@@ -77,7 +82,7 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                    {scores!.map((item, index) => {
+                    {scores && scores.map((item, index) => {
                         if(index === 0){
                             if(score && score.wpm >= item.wpm) return <StyledRows key={index} Component={StyledTableCellWin} score={item} index={index + 1}/>
                         }else{
