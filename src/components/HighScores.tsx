@@ -51,18 +51,19 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     const cookies = new Cookies();
     const [scores, setScores] = useState<Score[] | null>(cookies.get(COOKIE_SCORES) ?? null);
     useEffect(()=>{
-        if(settings.reset){
-            setSettings({...settings, reset: false});
-            setScores(null);
-        }else{
-            if(!scores && score) {
-                cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
-                setScores([score]);
-            }
-            if(scores && score){
-                setScores(getCookieScores(score));
-            }
-        }
+        // if(settings.reset){
+        //     setSettings({...settings, reset: false});
+        //     setScores(null);
+        // }else{
+            // if(!scores && score) {
+            //     console.log('called', scores, score)
+            //     cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
+            //     setScores([score]);
+            // }
+            // if(scores && score){
+            //     setScores(getCookieScores(score));
+            // }
+            score && setScores(getCookieScores(score))
 
 
         
@@ -70,7 +71,7 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     },[score, settings.stickyScores])
     return(
         <div className={styles.root}>
-            {renderScores(scores, settings.stickyScores, score, settings.reset) && 
+            {renderScores(scores, settings.stickyScores, score) && 
                 <TableContainer component={Card} variant="outlined" className={styles.table}>
                 <Table size="small" aria-label="simple table" >
                     <TableHead>

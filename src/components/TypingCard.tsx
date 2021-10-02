@@ -43,7 +43,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
             <div className={style.card}>
             {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
                 <span style={{color:theme.palette.primary.main}}>{score.wpm}</span> wpm  | 
-                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % | 
+                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span>% | 
                 <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs
                 </Typography>
                 : <Typography gutterBottom style={{color: 'transparent'}}>.</Typography>

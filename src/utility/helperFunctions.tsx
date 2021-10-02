@@ -93,21 +93,27 @@ export function typingCardReducer(state: TypingInitialState, action: ReducerActi
 export const getCookieScores = (score: Score) => {
             const cookies = new Cookies();
             const storedScores = cookies.get(COOKIE_SCORES);
-            if (storedScores.length < NUM_HIGH_SCORES) {
-                storedScores.push(score);
+            if(storedScores){
+                if (storedScores.length < NUM_HIGH_SCORES) {
+                    storedScores.push(score);
+                }
+                if (score.wpm > storedScores[storedScores.length - 1].wpm) {
+                    storedScores.pop();
+                    storedScores.push(score);
+                }
+                let sortedScores = storedScores.sort((a: Score, b: Score) => b.wpm - a.wpm)
+                cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
+                return sortedScores  
+            }else{
+                console.log('called');
+                cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
+                return [score]
             }
-            if (score.wpm > storedScores[storedScores.length - 1].wpm) {
-                storedScores.pop();
-                storedScores.push(score);
-            }
-            let sortedScores = storedScores.sort((a: Score, b: Score) => b.wpm - a.wpm)
-            cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
-            return sortedScores  
+
         }
 
 
 export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null, reset?: boolean) => {
-    if(reset) return false;
     if(stickyScores && scores) {
         console.log('1')
         return true
@@ -118,5 +124,6 @@ export const renderScores = (scores: Score[] | null, stickyScores: boolean, scor
     } 
     else{
         console.log('3')
-    } return false
+        return false
+    } 
 }

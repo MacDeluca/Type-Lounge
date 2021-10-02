@@ -131,7 +131,7 @@ export const Header: React.FC = () => {
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 dispatch({type: 'resetScores'})
-                                setSettings({...settings, reset: true})
+                                setSettings({...settings, reset: !settings.reset})
                                 }}>
                             <ListItemIcon><ImportExportIcon/></ListItemIcon>
                                 <ListItemText>Reset High Scores</ListItemText>
@@ -147,7 +147,6 @@ export const Header: React.FC = () => {
                             <Divider/>
                             </>
                         }
-                        <Button onClick={()=>dispatch({type: 'openAlert'})}>open</Button>
                             <Snackbar 
                             open={showAlert} 
                             autoHideDuration={1000} 
