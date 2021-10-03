@@ -105,7 +105,6 @@ export const getCookieScores = (score: Score) => {
                 cookies.set(COOKIE_SCORES, JSON.stringify(sortedScores), { path: '/' });
                 return sortedScores  
             }else{
-                console.log('called');
                 cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
                 return [score]
             }
@@ -115,15 +114,12 @@ export const getCookieScores = (score: Score) => {
 
 export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null, reset?: boolean) => {
     if(stickyScores && scores) {
-        console.log('1')
         return true
     }
     if(!stickyScores && score){
-        console.log('2')
         return true
     } 
     else{
-        console.log('3')
         return false
     } 
 }

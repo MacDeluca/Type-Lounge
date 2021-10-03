@@ -5,9 +5,13 @@ import SpeedIcon from '@material-ui/icons/Speed';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
 import { SettingsContext } from '../utility/context';
 import PlaylistPlayIcon from '@material-ui/icons/PlaylistPlay';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
+import RedoIcon from '@mui/icons-material/Redo';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import QueueMusicIcon from '@mui/icons-material/QueueMusic';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { NUM_HIGH_SCORES, NUM_WORDS, PLAYLISTS } from '../utility/constants';
 import { ReducerAction } from '../utility/types';
-import { settings } from 'cluster';
 import Cookies from 'universal-cookie';
 import { Alert } from '@mui/material';
 
@@ -20,11 +24,11 @@ function HeaderReducer(state: any, action: ReducerAction): any{
         case 'closeDrawer':
             return {...state, showDrawer: false, showPlaylists: false, showScoresMods: false, msg: ''}
         case 'toggleShowPlaylist':
-            return {...state, showPlaylists: !state.showPlaylists}
+            return {...state, showPlaylists: !state.showPlaylists, showScoresMods: false}
         case 'setWordCount':
             return{...state, index: state.index !== NUM_WORDS.length  ? state.index += 1 : 0 };
         case 'showScoresMods':
-            return{...state, showScoresMods: !state.showScoresMods};
+            return{...state, showScoresMods: !state.showScoresMods, showPlaylists: false};
         case 'resetScores':
             cookie.remove('scores-typeLounge');
             return{...state, showScoresMods: false, showAlert: true, msg: 'Scores Reset'}
@@ -79,28 +83,28 @@ export const Header: React.FC = () => {
                             setSettings({...settings, easyMode: !settings.easyMode})
                             dispatch({type: 'setMsg', payLoad: settings.easyMode ? 'Hard Mode Enabled' : 'Easy Mode Enabled'})
                             }}>
-                        <ListItemIcon><SpeedIcon/></ListItemIcon>
-                            <ListItemText>Difficulty | <span style={{color: palette.text.secondary}}>
+                        <ListItemIcon><SpeedIcon style={{color: palette.text.primary}}/></ListItemIcon>
+                            <ListItemText>Difficulty | <span style={{color: palette.primary.main}}>
                                 {settings.easyMode ? 'Easy' : 'Hard'}</span></ListItemText>
                         </ListItem>
                         <ListItem button onClick={()=>dispatch({type: 'toggleShowPlaylist'})}>
-                            <ListItemIcon><PlaylistPlayIcon /></ListItemIcon>
+                            <ListItemIcon><PlaylistPlayIcon style={{color: palette.text.primary}}/></ListItemIcon>
                             <ListItemText primary={'Change Playlist'}/>
                         </ListItem>
                         <ListItem button onClick={()=>dispatch({type: 'showScoresMods'})}>
-                            <ListItemIcon><PlaylistPlayIcon /></ListItemIcon>
+                            <ListItemIcon><SportsScoreIcon style={{color: palette.text.primary}}/></ListItemIcon>
                             <ListItemText primary={'High Scores'}/>
                         </ListItem>
                         <Divider/>
                         {settings.easyMode && 
                         <>
                             <ListItem>
-                                <ListItemText primary={'Easy Mode Settings'} style={{color: palette.text.secondary}}/>
+                                <ListItemText primary={'Easy Mode Settings'} style={{color: palette.primary.main}}/>
                             </ListItem>
                             <ListItem button onClick={()=>
                                 setSettings({...settings, wordCount: index < NUM_WORDS.length - 1 ? NUM_WORDS[index + 1] : NUM_WORDS[0]})}>
-                            <ListItemIcon><ImportExportIcon/></ListItemIcon>
-                                <ListItemText>Word Count | <span style={{color: palette.text.secondary}}>{settings.wordCount}</span></ListItemText>
+                            <ListItemIcon><ImportExportIcon style={{color: palette.text.primary}}/></ListItemIcon>
+                                <ListItemText>Word Count | <span style={{color: palette.primary.main}}>{settings.wordCount}</span></ListItemText>
                             </ListItem>
                             <Divider/>
                             </>
@@ -117,8 +121,8 @@ export const Header: React.FC = () => {
                                 dispatch({type: 'setMsg', payLoad: `Playlist '${playlist}' Set`})
                             }
                                 }>
-                                <ListItemIcon><PlaylistPlayIcon /></ListItemIcon>
-                                {playlist === settings.playlist ? <ListItemText style={{color: palette.text.secondary}} primary={playlist}/> : <ListItemText primary={playlist}/>}
+                                <ListItemIcon><QueueMusicIcon style={{color: palette.text.primary}}/></ListItemIcon>
+                                {playlist === settings.playlist ? <ListItemText style={{color: palette.primary.main}} primary={playlist}/> : <ListItemText primary={playlist}/>}
                                 </ListItem>
                             )}
                             <Divider/>
@@ -131,17 +135,19 @@ export const Header: React.FC = () => {
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 dispatch({type: 'resetScores'})
-                                setSettings({...settings, reset: !settings.reset})
+                                setSettings({...settings, reset: true})
                                 }}>
-                            <ListItemIcon><ImportExportIcon/></ListItemIcon>
+                            <ListItemIcon><RedoIcon style={{color: palette.text.primary}}/></ListItemIcon>
                                 <ListItemText>Reset High Scores</ListItemText>
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 setSettings({...settings, stickyScores: !settings.stickyScores})
                                 dispatch({type: 'setMsg', payLoad: settings.stickyScores ? 'Scores Hidden' : 'Scores Shown'})
                                 }}>
-                            <ListItemIcon><ImportExportIcon/></ListItemIcon>
-                                <ListItemText>{settings.stickyScores ? 'Hide Scores' : 'Show Scores'}</ListItemText>
+                            <ListItemIcon>{settings.stickyScores 
+                            ? <VisibilityIcon style={{color: palette.text.primary}}/> 
+                            : <VisibilityOffIcon style={{color: palette.text.primary}}/>}</ListItemIcon>
+                                <ListItemText>Scores | <span style={{color: palette.primary.main}}>{settings.stickyScores ? 'Visible' : 'Hidden'}</span></ListItemText>
                             </ListItem>
                             
                             <Divider/>

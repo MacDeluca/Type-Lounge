@@ -1,7 +1,7 @@
-import { Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import { Button, Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
 import { COLOURS } from "../utility/colours";
 import {Score} from '../utility/types';
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { renderScores, getCookieScores } from "../utility/helperFunctions";
 import Cookies from "universal-cookie";
 import { SettingsContext } from "../utility/context";
@@ -51,24 +51,15 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     const cookies = new Cookies();
     const [scores, setScores] = useState<Score[] | null>(cookies.get(COOKIE_SCORES) ?? null);
     useEffect(()=>{
-        // if(settings.reset){
-        //     setSettings({...settings, reset: false});
-        //     setScores(null);
-        // }else{
-            // if(!scores && score) {
-            //     console.log('called', scores, score)
-            //     cookies.set(COOKIE_SCORES, JSON.stringify([score]), { path: '/' });
-            //     setScores([score]);
-            // }
-            // if(scores && score){
-            //     setScores(getCookieScores(score));
-            // }
-            score && setScores(getCookieScores(score))
+        if(settings.reset){
+            setSettings({...settings, reset: false});
+            setScores(null);
+        }
+    },[settings.reset])
 
-
-        
-        
-    },[score, settings.stickyScores])
+    useEffect(()=>{
+        score && setScores(getCookieScores(score))
+    } ,[score, settings.stickyScores])
     return(
         <div className={styles.root}>
             {renderScores(scores, settings.stickyScores, score) && 
