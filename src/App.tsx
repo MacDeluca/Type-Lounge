@@ -1,10 +1,13 @@
-import { Box, Button, Grow } from '@material-ui/core';
-import { ThemeProvider } from '@material-ui/core/styles';
+import { Box, Button, Grid, Grow } from '@material-ui/core';
+import { createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 import './App.css';
 import { Header } from './components/Header';
 import { UserNameModal } from './components/partials/UserNameModal';
+import { MatterStepThree } from './components/Physics';
+
+// import { Comp } from './components/Physics';
 import { SpotifyFooter } from './components/SpotifyFooter';
 import { TypingCard } from './components/TypingCard';
 import { darkTheme, lightTheme } from './utility/colours';
@@ -13,6 +16,7 @@ import { SettingsContext, ISettings } from './utility/context';
 
 function App() {
   let cookies = new Cookies();
+  const styles = useStyles();
   const [settings, setSettings] = useState<ISettings>(cookies.get(COOKIE_SETTINGS) ?? 
     {
       easyMode: true,
@@ -32,17 +36,24 @@ function App() {
     <div className="App">
     <SettingsContext.Provider value={{settings, setSettings}}>
       <ThemeProvider theme={settings.darkMode ? darkTheme : lightTheme}>
-
-        <Header/>
-        <TypingCard/>
-        <SpotifyFooter/>
-        
+          <Header/>
+          <div className={styles.root}>
+            <MatterStepThree/>
+            </div>
+          <SpotifyFooter/>
       </ThemeProvider>
     </SettingsContext.Provider>
     </div>
     
   );
 }
+const useStyles = makeStyles((theme: Theme) =>
+createStyles({
+    root: {
+      height: '91.6vh',
+      display:'flex',
+    }
+}))
 
 export default App;
 

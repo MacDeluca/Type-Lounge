@@ -18,9 +18,7 @@
   overflow-x: hidden;
   overflow-y: hidden;
   min-height: 100vh;
-  align-items: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
 }
 .App-header{
   background-color:#32302f;

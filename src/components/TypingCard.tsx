@@ -99,7 +99,7 @@ createStyles({
         marginRight: '10%',
         marginLeft: '10%',
         width: '80%',
-        marginBottom: 200,
+        //marginBottom: 200,
     },
     card: {
         minWidth: 50,
