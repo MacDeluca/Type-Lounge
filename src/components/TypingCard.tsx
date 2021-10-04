@@ -1,5 +1,5 @@
 
-import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme, Zoom, Collapse } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { useContext, useEffect, useReducer, useRef } from 'react';
@@ -43,7 +43,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
             <div className={style.card}>
             {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
                 <span style={{color:theme.palette.primary.main}}>{score.wpm}</span> wpm  | 
-                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span>% | 
+                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % | 
                 <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs
                 </Typography>
                 : <Typography gutterBottom style={{color: 'transparent'}}>.</Typography>
@@ -55,9 +55,10 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                             <Typography className={style.test}>
                                 {test && test.map((word, index) => {
                                     let color;
+                                    let wordWithSpaces = word + '\xa0'
                                     index === userString.length && (color = theme.palette.secondary.main);
                                     index < userString.length && (color = (word === userString[index] ? theme.palette.text.secondary : theme.palette.error.main));
-                                    return <span key={index} style={{ color: color}}>{word} </span>
+                                    return <span key={index} style={{ color: color}}>{wordWithSpaces} </span>
                                 })}
                                 <br/>
                                 {settings.easyMode === false && (test && author) && <i style={{color: theme.palette.text.secondary}}>- {author}</i>}
@@ -80,11 +81,11 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                         
                     </Card>
                 </Box>
-                <Box component={Grid} boxShadow={4}>
-                    <HighScores score={score} />
-                </Box>
-
-
+                {settings.stickyScores
+                ? <HighScores score={score} />
+                : <Collapse in={score !== null}><HighScores score={score} /></Collapse>
+                }
+                
                 </div>
         </Grid>
     )
@@ -104,11 +105,11 @@ createStyles({
     },
     textField: {
         "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: theme.palette.text.secondary
+            borderColor: theme.palette.text.primary
         },
-        "& .MuiInputLabel-outlined.Mui-focused": {
-            borderColor: theme.palette.text.secondary
-        },
+        // "& .MuiInputLabel-outlined.Mui-focused": {
+        //     borderColor: theme.palette.text.secondary
+        // },
     },
     wpm: {
         textAlign: 'right',

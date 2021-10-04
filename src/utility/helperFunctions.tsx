@@ -116,7 +116,7 @@ export const renderScores = (scores: Score[] | null, stickyScores: boolean, scor
     if(stickyScores && scores) {
         return true
     }
-    if(!stickyScores && score){
+    if(!stickyScores && score && scores){
         return true
     } 
     else{

@@ -99,7 +99,7 @@ export const Header: React.FC = () => {
                         {settings.easyMode && 
                         <>
                             <ListItem>
-                                <ListItemText primary={'Easy Mode Settings'} style={{color: palette.primary.main}}/>
+                                <ListItemText primary={'Easy Mode Settings'}/>
                             </ListItem>
                             <ListItem button onClick={()=>
                                 setSettings({...settings, wordCount: index < NUM_WORDS.length - 1 ? NUM_WORDS[index + 1] : NUM_WORDS[0]})}>
@@ -113,7 +113,7 @@ export const Header: React.FC = () => {
                         {showPlaylists && 
                         <>
                             <ListItem>
-                                <ListItemText primary={'Playlists'} style={{color: palette.text.secondary}}/>
+                                <ListItemText primary={'Playlists'}/>
                             </ListItem>
                             {PLAYLISTS.map((playlist, index)=>
                                 <ListItem key={index} button onClick={()=>{
@@ -131,7 +131,7 @@ export const Header: React.FC = () => {
                         { showScoresMods &&
                             <>
                             <ListItem>
-                                <ListItemText primary={'High Score Settings'} style={{color: palette.text.secondary}}/>
+                                <ListItemText primary={'High Score Settings'}/>
                             </ListItem>
                             <ListItem button onClick={()=>{
                                 dispatch({type: 'resetScores'})

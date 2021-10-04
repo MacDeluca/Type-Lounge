@@ -1,4 +1,4 @@
-import { Button, Card, makeStyles, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, withStyles } from "@material-ui/core"
+import { Box, Button, Card, createStyles, Grid, makeStyles, Slide, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme, useTheme, withStyles, Zoom } from "@material-ui/core"
 import { COLOURS } from "../utility/colours";
 import {Score} from '../utility/types';
 import { useContext, useEffect, useRef, useState } from "react";
@@ -6,22 +6,23 @@ import { renderScores, getCookieScores } from "../utility/helperFunctions";
 import Cookies from "universal-cookie";
 import { SettingsContext } from "../utility/context";
 import { COOKIE_SCORES } from "../utility/constants";
+import { Alert } from "@mui/material";
 const StyledTableCell = withStyles({
     root: {
         color: COLOURS.primary,
-        borderBottom: 'none'
+        
     }
     })(TableCell);
 const StyledTableCellWin = withStyles({
     root: {
         color: COLOURS.textCurrent,
-        borderBottom: 'none'
+        
     }
     })(TableCell);
 const StyledTableCellLose = withStyles({
     root: {
         color: COLOURS.secondary,
-        borderBottom: 'none'
+        //borderBottom: 'none'
         
     }
     })(TableCell);
@@ -30,15 +31,16 @@ interface RenderRowsProps {
     Component: React.ComponentType<any>;
     score: Score;
     index: number;
+    color: string;
 }
-const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index}) => {
+const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index, color}) => {
 
     return(
         <TableRow>
-        <Component>{index}</Component>
-        <Component component='th' scope='row'>{score.wpm}</Component>
-        <Component>{score.accuracy}</Component>
-        <Component>{score.date}</Component>
+        <Component style={{color: color, borderBottom: 'none'}}>{index}</Component>
+        <Component style={{color: color, borderBottom: 'none'}}>{score.wpm}</Component>
+        <Component style={{color: color, borderBottom: 'none'}}>{score.accuracy}</Component>
+        <Component style={{color: color, borderBottom: 'none'}}>{score.date}</Component>
         </TableRow>
     )
 }
@@ -47,9 +49,12 @@ interface HighScoresProps {
 }
 export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     const styles = useStyles();
+    const theme = useTheme();
     const {settings, setSettings} = useContext(SettingsContext);
     const cookies = new Cookies();
     const [scores, setScores] = useState<Score[] | null>(cookies.get(COOKIE_SCORES) ?? null);
+    const [scoreAlert, setScoreAlert] = useState(false);
+
     useEffect(()=>{
         if(settings.reset){
             setSettings({...settings, reset: false});
@@ -61,42 +66,54 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
         score && setScores(getCookieScores(score))
     } ,[score, settings.stickyScores])
     return(
-        <div className={styles.root}>
-            {renderScores(scores, settings.stickyScores, score) && 
-                <TableContainer component={Card} variant="outlined" className={styles.table}>
+        <>
+        {renderScores(scores, settings.stickyScores, score) &&
+            <Box component={Grid} boxShadow={4} className={styles.root}>
+            
+                <TableContainer component={Card} variant="outlined">
                 <Table size="small" aria-label="simple table" >
                     <TableHead>
                         <TableRow >
-                            <StyledTableCellWin>#</StyledTableCellWin>
-                            <StyledTableCellWin>WPM</StyledTableCellWin>
-                            <StyledTableCellWin>Accuracy</StyledTableCellWin>
-                            <StyledTableCellWin>Date</StyledTableCellWin>
+                            {['#', 'WPM', 'Accuracy', 'Date'].map((value) =>
+                                <TableCell key={value} style={{color: theme.palette.secondary.main}}>{value}</TableCell>
+                            )}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                     {scores && scores.map((item, index) => {
                         if(index === 0){
-                            if(score && score.wpm >= item.wpm) return <StyledRows key={index} Component={StyledTableCellWin} score={item} index={index + 1}/>
+                            if(score && score.wpm >= item.wpm) {
+                                !scoreAlert && setScoreAlert(true)
+                                return <StyledRows key={index} Component={TableCell} color={theme.palette.primary.main} score={item} index={index + 1}/>
+                            }
+                                
                         }else{
-                            if(score && item.id === score.id) return <StyledRows key={index} Component={StyledTableCellLose} score={item} index={index + 1}/>
+                            if(score && item.id === score.id) 
+                                return <StyledRows key={index} Component={TableCell} color={theme.palette.text.secondary} score={item} index={index + 1}/>
                         }
-                        return <StyledRows key={index} Component={StyledTableCell} score={item} index={index + 1}/>
+                        return <StyledRows key={index} Component={TableCell} color={theme.palette.text.primary} score={item} index={index + 1}/>
                     })}
                     </TableBody>
                 </Table>
             </TableContainer> 
-            }
-        </div>
+        </Box>
+        }
+        <Snackbar 
+                open={scoreAlert} 
+                autoHideDuration={1000} 
+                anchorOrigin={{horizontal: 'center', vertical: 'bottom'}}
+                onClose={()=>setScoreAlert(false)} 
+                TransitionComponent={Slide}
+            >
+                <Alert severity="success" variant="filled" style={{backgroundColor: theme.palette.secondary.main}}>New High Score of {score && score.wpm} WPM!</Alert>
+            </Snackbar>
+        </>
+    
     )
 }
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme: Theme) =>
+createStyles({
     root: {
         marginTop: 20,
-    },
-    table: {
-        backgroundColor: COLOURS.card,
-    },
-    tableCell: {
-        color: COLOURS.primary
     }
-})
+}))

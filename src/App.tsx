@@ -1,3 +1,4 @@
+import { Box, Button, Grow } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/core/styles';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
@@ -22,6 +23,7 @@ function App() {
       reset: false,
   }
   );
+  const [checked, setChecked] = useState(false)
   // const [colourTheme, setColourTheme] = useState<ColourTheme>();
   useEffect(()=>{
     cookies.set(COOKIE_SETTINGS,JSON.stringify(settings), {path:'/'});
@@ -32,7 +34,7 @@ function App() {
       <ThemeProvider theme={settings.darkMode ? darkTheme : lightTheme}>
 
         <Header/>
-          <TypingCard/>
+        <TypingCard/>
         <SpotifyFooter/>
         
       </ThemeProvider>
