@@ -23,7 +23,7 @@ function App() {
       reset: false,
   }
   );
-  const [checked, setChecked] = useState(false)
+  const [checked, setChecked] = useState(true)
   // const [colourTheme, setColourTheme] = useState<ColourTheme>();
   useEffect(()=>{
     cookies.set(COOKIE_SETTINGS,JSON.stringify(settings), {path:'/'});

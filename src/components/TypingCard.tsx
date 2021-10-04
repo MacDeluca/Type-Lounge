@@ -1,5 +1,5 @@
 
-import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme, Zoom, Collapse } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme, Zoom, Collapse, Grow } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { useContext, useEffect, useReducer, useRef } from 'react';
@@ -39,6 +39,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
         reset();
     }, [settings.wordCount, settings.easyMode, settings.stickyScores])
     return (
+        <Grow in={true} timeout={600}>
         <Grid container direction="column" alignItems="center" spacing={3} className={style.root}>
             <div className={style.card}>
             {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
@@ -83,11 +84,12 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                 </Box>
                 {settings.stickyScores
                 ? <HighScores score={score} />
-                : <Collapse in={score !== null}><HighScores score={score} /></Collapse>
+                : <Collapse in={score !== null} timeout={380}><HighScores score={score} /></Collapse>
                 }
                 
                 </div>
         </Grid>
+        </Grow>
     )
 }
 const useStyles = makeStyles((theme: Theme) =>
