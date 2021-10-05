@@ -6,7 +6,7 @@ import { Button, useTheme } from '@material-ui/core'
 import { SettingsContext } from '../utility/context'
 
 const STATIC_DENSITY = 15
-const PARTICLE_SIZE = 20
+const PARTICLE_SIZE = 10
 const PARTICLE_BOUNCYNESS = .5 //1.1
 
 export const MatterStepThree = () => {
@@ -133,10 +133,10 @@ export const MatterStepThree = () => {
       //   { x: 0, y: 0 + STATIC_DENSITY },
       // ])
       // Matter.Body.setVertices(rightWall, [
-      //   { x: 0, y: height },
-      //   { x: width, y: height },
-      //   { x: width, y: height + STATIC_DENSITY },
-      //   { x: 0, y: height + STATIC_DENSITY },
+      //   { x: width, y: 0 },
+      //   { x: width, y: 0 },
+      //   { x: 0, y: 0 + STATIC_DENSITY },
+      //   { x: width, y: 0 + STATIC_DENSITY },
       // ])
     }
   }, [scene, constraints])
@@ -151,7 +151,7 @@ export const MatterStepThree = () => {
           restitution: PARTICLE_BOUNCYNESS,
           render: {
             fillStyle: randomColor[Math.floor(Math.random() * (randomColor.length))],
-            opacity: 1,
+            opacity: .9,
           }
         }),
       )
@@ -165,7 +165,6 @@ export const MatterStepThree = () => {
       }}
     >
       <TypingCard setSpawn={setSomeStateValue} spawn={someStateValue}/>
-      <Button style={{top: '50%'}}onClick={()=>handleClick()}>test</Button>
       <div
         ref={boxRef}
         className="App-content"

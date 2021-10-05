@@ -23,8 +23,8 @@ const StyledLinearProgress = withStyles((theme: Theme) =>
 
 
 interface TypingCardProps {
-    setSpawn: any;
-    spawn: boolean;
+    setSpawn?: any;
+    spawn?: boolean;
 }
 export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
     const theme = useTheme();
@@ -63,7 +63,6 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
                                     let wordWithSpaces = word + '\xa0'
                                     index === userString.length && (color = theme.palette.secondary.main);
                                     index < userString.length && (color = (word === userString[index] ? theme.palette.text.secondary : theme.palette.error.main));
-                                    color === theme.palette.text.secondary && console.log('green');
                                     return <span key={index} style={{ color: color}}>{wordWithSpaces} </span>
                                 })}
                                 <br/>
@@ -79,7 +78,7 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
                                 onChange={e=>dispatch({type: 'setAndClear', payLoad: e.target.value})}
                                 onKeyDown={e=> {
                                     if(e.key === 'Enter' && test!.length === userString.length) reset();
-                                    if(e.key === ' ') setSpawn(!spawn)
+                                    else if(e.key === ' ') setSpawn(!spawn)//
                                 }}
                                 inputRef={inputRef}
                                 />
