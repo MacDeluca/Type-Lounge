@@ -164,7 +164,7 @@ export const MatterStepThree = () => {
         width:'100%',
       }}
     >
-      <TypingCard setSpawn={setSomeStateValue} spawn={someStateValue}/>
+      {/* <TypingCard setSpawn={setSomeStateValue} spawn={someStateValue}/> */}
       <div
         ref={boxRef}
         className="App-content"
