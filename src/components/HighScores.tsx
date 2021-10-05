@@ -7,25 +7,6 @@ import Cookies from "universal-cookie";
 import { SettingsContext } from "../utility/context";
 import { COOKIE_SCORES } from "../utility/constants";
 import { Alert } from "@mui/material";
-const StyledTableCell = withStyles({
-    root: {
-        color: COLOURS.primary,
-        
-    }
-    })(TableCell);
-const StyledTableCellWin = withStyles({
-    root: {
-        color: COLOURS.textCurrent,
-        
-    }
-    })(TableCell);
-const StyledTableCellLose = withStyles({
-    root: {
-        color: COLOURS.secondary,
-        //borderBottom: 'none'
-        
-    }
-    })(TableCell);
 
 interface RenderRowsProps {
     Component: React.ComponentType<any>;
@@ -115,5 +96,6 @@ const useStyles = makeStyles((theme: Theme) =>
 createStyles({
     root: {
         marginTop: 20,
+        marginBottom: 100,
     }
 }))

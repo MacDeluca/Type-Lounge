@@ -95,6 +95,7 @@ export const Header: React.FC = () => {
                             <ListItemIcon><SportsScoreIcon style={{color: palette.text.primary}}/></ListItemIcon>
                             <ListItemText primary={'High Scores'}/>
                         </ListItem>
+                        <Button onClick={()=>setSettings({...settings, spawn: !settings.spawn})}>test</Button>
                         <Divider/>
                         {settings.easyMode && 
                         <>

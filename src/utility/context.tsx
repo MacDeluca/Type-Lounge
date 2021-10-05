@@ -6,6 +6,7 @@ export interface ISettings {
     playList: string;
     wordCount: number;
     darkMode: boolean;
-    stickyScores: boolean; 
+    stickyScores: boolean;
+    spawn: boolean;
 }
 export const SettingsContext = createContext<any>(null);

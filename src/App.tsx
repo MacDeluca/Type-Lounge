@@ -1,5 +1,6 @@
 import { Box, Button, Grid, Grow } from '@material-ui/core';
 import { createStyles, makeStyles, Theme, ThemeProvider } from '@material-ui/core/styles';
+import { Stack } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'universal-cookie';
 import './App.css';
@@ -25,6 +26,7 @@ function App() {
       darkMode: true,
       stickyScores: true,
       reset: false,
+      spawn: false,
   }
   );
   const [checked, setChecked] = useState(true)
@@ -37,10 +39,8 @@ function App() {
     <SettingsContext.Provider value={{settings, setSettings}}>
       <ThemeProvider theme={settings.darkMode ? darkTheme : lightTheme}>
           <Header/>
-          <div className={styles.root}>
             <MatterStepThree/>
-            </div>
-          <SpotifyFooter/>
+            <SpotifyFooter/>
       </ThemeProvider>
     </SettingsContext.Provider>
     </div>
@@ -50,8 +50,10 @@ function App() {
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
     root: {
-      height: '91.6vh',
-      display:'flex',
+      //height: '100%',//92.4vh
+      // flex: '1',
+    },
+    typingCard: {
     }
 }))
 

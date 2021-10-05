@@ -1,8 +1,8 @@
 
-import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme, Zoom, Collapse, Grow } from '@material-ui/core';
+import { Card, TextField, makeStyles, Grid, Box, CardContent, Typography, LinearProgress, CardActions, IconButton, withStyles, createStyles, Theme, useTheme, Zoom, Collapse, Grow, Button } from '@material-ui/core';
 import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
-import { useContext, useEffect, useReducer, useRef } from 'react';
+import { SetStateAction, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { v4 } from 'uuid';
 import { TYPING_CARD_INITIAL_STATE } from '../utility/constants';
 import { SettingsContext } from '../utility/context';
@@ -22,14 +22,18 @@ const StyledLinearProgress = withStyles((theme: Theme) =>
 
 
 
-interface TypingCardProps {}
-export const TypingCard: React.FC<TypingCardProps> = () => {
+interface TypingCardProps {
+    setSpawn: any;
+    spawn: boolean;
+}
+export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
     const theme = useTheme();
     const style = useStyles(theme);
     const inputRef = useRef<HTMLInputElement>(null);
     const {settings, setSettings} = useContext(SettingsContext);
     const [state, dispatch] = useReducer(typingCardReducer, TYPING_CARD_INITIAL_STATE);
     const {input, test, userString, time, author, score} = state;
+    const [called ,setCalled] = useState(false);
     if(input.length === 1 && userString.length === 0) start();
     const reset = async () => {
         inputRef.current?.focus();
@@ -59,6 +63,7 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                                     let wordWithSpaces = word + '\xa0'
                                     index === userString.length && (color = theme.palette.secondary.main);
                                     index < userString.length && (color = (word === userString[index] ? theme.palette.text.secondary : theme.palette.error.main));
+                                    color === theme.palette.text.secondary && console.log('green');
                                     return <span key={index} style={{ color: color}}>{wordWithSpaces} </span>
                                 })}
                                 <br/>
@@ -72,12 +77,16 @@ export const TypingCard: React.FC<TypingCardProps> = () => {
                                 fullWidth 
                                 variant="outlined" value={input}  
                                 onChange={e=>dispatch({type: 'setAndClear', payLoad: e.target.value})}
-                                onKeyDown={e=> (e.key === 'Enter' && test!.length === userString.length) && reset()}
+                                onKeyDown={e=> {
+                                    if(e.key === 'Enter' && test!.length === userString.length) reset();
+                                    if(e.key === ' ') setSpawn(!spawn)
+                                }}
                                 inputRef={inputRef}
                                 />
                                 <IconButton onClick={() => reset()} color="inherit" size="small">
                                 <ReplayRoundedIcon style={{ color: theme.palette.text.secondary }} fontSize="large" />
                                 </IconButton>
+                                <Button onClick={()=>setSpawn(!spawn)}>ok</Button>
                         </CardActions>
                         
                     </Card>
@@ -99,7 +108,6 @@ createStyles({
         marginRight: '10%',
         marginLeft: '10%',
         width: '80%',
-        //marginBottom: 200,
     },
     card: {
         minWidth: 50,
