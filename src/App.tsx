@@ -26,10 +26,8 @@ function App() {
       darkMode: true,
       stickyScores: true,
       reset: false,
-      spawn: false,
   }
   );
-  const [checked, setChecked] = useState(true)
   // const [colourTheme, setColourTheme] = useState<ColourTheme>();
   useEffect(()=>{
     cookies.set(COOKIE_SETTINGS,JSON.stringify(settings), {path:'/'});
@@ -39,12 +37,7 @@ function App() {
     <SettingsContext.Provider value={{settings, setSettings}}>
       <ThemeProvider theme={settings.darkMode ? darkTheme : lightTheme}>
           <Header/>
-          <div className="App-typingCard">
-          <TypingCard/>
-          </div>
-          
-            <MatterStepThree/>
-            
+          <MatterStepThree/>
             <SpotifyFooter/>
       </ThemeProvider>
     </SettingsContext.Provider>

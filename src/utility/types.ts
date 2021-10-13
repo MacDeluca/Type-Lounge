@@ -10,13 +10,17 @@ export interface ReducerAction {
     fieldName?: string;
     payLoad?: any;
 }
-
+export interface Test {
+    content: string[],
+    author: string,
+}
 export interface TypingInitialState {
-    input: string;
-    test: string[];
+    test: {
+        content: string[],
+        author: string,
+    }
     userString: string[];
-    time: number | undefined;
-    author: string;
+    //time: number | null;
     score: Score | null;
 }
 

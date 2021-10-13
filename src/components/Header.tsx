@@ -54,6 +54,12 @@ export const Header: React.FC = () => {
         showAlert: false,
         msg: '',
     });
+    const randomColor = [
+        palette.primary.main,
+        palette.text.secondary,
+        palette.secondary.main,
+        palette.error.main
+    ]
     const {showDrawer, showPlaylists, showScoresMods, showAlert, msg} = state;
     let index = NUM_WORDS.indexOf(settings.wordCount);
     return (
@@ -64,7 +70,7 @@ export const Header: React.FC = () => {
                             <MenuIcon />
                         </IconButton>
                         <Typography className={style.title} color='textPrimary'>
-                            T Y P E L O U N G E
+                            T Y P E L <span style={{color: randomColor[Math.floor(Math.random() * (randomColor.length))]}}>O</span> U N G E
                         </Typography>
                     </Toolbar>
                 </AppBar>

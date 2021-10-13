@@ -1,6 +1,8 @@
 export const PLAYLISTS = ['Lo-fi', 'Rock', 'Ambient', 'Jazz', 'Hip-hop']
-export const NUM_WORDS = [3, 5, 10, 25, 50, 100, 150, 200];
-export const NUM_HIGH_SCORES = 10;
+export const NUM_WORDS = [3, 5, 10, 25, 50, 100, 150];
+export const NUM_HIGH_SCORES = 5;
+export const MIN_ACCURACY = 90;
+export const MIN_WPM = 50;
 export const COOKIE_SCORES = 'scores-typeLounge';
 export const COOKIE_SETTINGS = 'settings-typeLounge';
 export const SCORE_INITIAL_STATE = {
@@ -10,13 +12,10 @@ export const SCORE_INITIAL_STATE = {
     accuracy: -1,
 }
 export const TYPING_CARD_INITIAL_STATE = {
-input: '',
-test: [],
+test: {content: [], author: ''},
 userString: [],
-time: undefined,
-author: '',
+//time: null,
 score: null,
-executed: false,
 }
 export const WORD_POOL = ['the',
 'of',

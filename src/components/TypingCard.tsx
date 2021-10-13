@@ -4,9 +4,10 @@ import ReplayRoundedIcon from '@material-ui/icons/ReplayRounded';
 import * as React from 'react';
 import { SetStateAction, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { v4 } from 'uuid';
-import { TYPING_CARD_INITIAL_STATE } from '../utility/constants';
+import { MIN_ACCURACY, MIN_WPM, TYPING_CARD_INITIAL_STATE } from '../utility/constants';
 import { SettingsContext } from '../utility/context';
-import { hardMode, normalize, start, easyMode, typingCardReducer, renderScores } from '../utility/helperFunctions';
+import { hardMode, normalize, start, easyMode, renderScores, end, calculateWpm, generateScore, testNewHighScore, doWordsMatch } from '../utility/helperFunctions';
+import { Score, Test, TypingInitialState } from '../utility/types';
 import { HighScores } from './HighScores';
 
 const StyledLinearProgress = withStyles((theme: Theme) =>
@@ -31,14 +32,39 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
     const style = useStyles(theme);
     const inputRef = useRef<HTMLInputElement>(null);
     const {settings, setSettings} = useContext(SettingsContext);
-    const [state, dispatch] = useReducer(typingCardReducer, TYPING_CARD_INITIAL_STATE);
-    const {input, test, userString, time, author, score} = state;
-    const [called ,setCalled] = useState(false);
-    if(input.length === 1 && userString.length === 0) start();
+    const [input, setInput] = useState('');
+    const [typingState, setTypingState] = useState<TypingInitialState>(TYPING_CARD_INITIAL_STATE);
+    const {test, userString, score} = typingState;
+
+
+    const handleInput = (key: string) => {
+        setInput(key);
+        if(input.length === 1 && userString.length === 0) start();
+        if(key.indexOf(' ') >= 0){
+            if(userString.length === test.content.length) {
+                setTypingState({...typingState, userString: []})
+                reset();
+            }else{
+                setTypingState({...typingState, userString: [...userString,key.slice(0,-1)]})
+            }
+            setInput('')
+        }
+    }
     const reset = async () => {
         inputRef.current?.focus();
-        dispatch({type: 'reset', payLoad: settings.easyMode ? easyMode(settings.wordCount) : await hardMode()})
+        setTypingState({...TYPING_CARD_INITIAL_STATE, test: settings.easyMode ? easyMode(settings.wordCount) : await hardMode()})
     }
+    useEffect(() => {
+        if(doWordsMatch(userString, test.content)) setSpawn({spawn: !spawn, num: 1}); //Function took: 0.15
+        
+        let genScore = generateScore(userString, test.content); //Function took: 0.2999999523162842
+        if(genScore){
+            let {score} = genScore;
+            if(score.accuracy >= MIN_ACCURACY && score.wpm >= MIN_WPM) setSpawn({spawn: !spawn, num: test.content.length + 1})
+            if(testNewHighScore(score)) setSpawn ({spawn: !spawn, num: test.content.length * 2})
+            setTypingState({...typingState, score: score});
+    }
+    },[userString])
     useEffect(() => {
         reset();
     }, [settings.wordCount, settings.easyMode, settings.stickyScores])
@@ -48,25 +74,27 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
             <div className={style.card}>
             {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
                 <span style={{color:theme.palette.primary.main}}>{score.wpm}</span> wpm  | 
-                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % | 
-                <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs
+                <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % 
+                {/* <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs */}
                 </Typography>
-                : <Typography gutterBottom style={{color: 'transparent'}}>.</Typography>
+                : <Typography gutterBottom style={{color: 'transparent'}}>{'\xa0'}</Typography>
         }
-                <Box component={Grid} boxShadow={4}>
+                <Box component={Grid} boxShadow={6}>
                     <Card variant="outlined" style={{backgroundColor: theme.palette.background.paper}}>
-                    {test && <StyledLinearProgress value={normalize(userString.length, test.length)} variant="determinate" />}
+                    {test && <StyledLinearProgress value={normalize(userString.length, test.content.length)} variant="determinate" />}
                         <CardContent>
+                        <div className={style.wpm} style={{color: theme.palette.text.secondary}}>Bonus: </div>
                             <Typography className={style.test}>
-                                {test && test.map((word, index) => {
+                                {test && test.content.map((word, index) => {
                                     let color;
                                     let wordWithSpaces = word + '\xa0'
                                     index === userString.length && (color = theme.palette.secondary.main);
                                     index < userString.length && (color = (word === userString[index] ? theme.palette.text.secondary : theme.palette.error.main));
                                     return <span key={index} style={{ color: color}}>{wordWithSpaces} </span>
                                 })}
-                                <br/>
-                                {settings.easyMode === false && (test && author) && <i style={{color: theme.palette.text.secondary}}>- {author}</i>}
+                                {settings.easyMode === false && 
+                                (test.content && test.author) && 
+                                <i style={{color: theme.palette.primary.main}}><br/><br/>- {test.author}</i>}
                             </Typography>
                         </CardContent>
                         <CardActions>
@@ -75,17 +103,12 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
                                 size="small" 
                                 fullWidth 
                                 variant="outlined" value={input}  
-                                onChange={e=>dispatch({type: 'setAndClear', payLoad: e.target.value})}
-                                onKeyDown={e=> {
-                                    if(e.key === 'Enter' && test!.length === userString.length) reset();
-                                    else if(e.key === ' ') setSpawn(!spawn)//
-                                }}
+                                onChange={e=>handleInput(e.target.value)}
                                 inputRef={inputRef}
                                 />
                                 <IconButton onClick={() => reset()} color="inherit" size="small">
                                 <ReplayRoundedIcon style={{ color: theme.palette.text.secondary }} fontSize="large" />
                                 </IconButton>
-                                <Button onClick={()=>setSpawn(!spawn)}>ok</Button>
                         </CardActions>
                         
                     </Card>
@@ -103,14 +126,16 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
     root: {
-        marginTop: 150,
+        marginTop: 100,
         marginRight: '10%',
         marginLeft: '10%',
         width: '80%',
+        height: '100%',
     },
     card: {
         minWidth: 50,
-        maxWidth: 600,
+        maxWidth: 800,
+        opacity: '0.85',
     },
     textField: {
         "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline": {

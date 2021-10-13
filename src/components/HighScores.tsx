@@ -1,6 +1,7 @@
 import { Box, Button, Card, createStyles, Grid, makeStyles, Slide, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Theme, useTheme, withStyles, Zoom } from "@material-ui/core"
 import { COLOURS } from "../utility/colours";
 import {Score} from '../utility/types';
+import SportsScoreIcon from '@mui/icons-material/SportsScore';
 import { useContext, useEffect, useRef, useState } from "react";
 import { renderScores, getCookieScores } from "../utility/helperFunctions";
 import Cookies from "universal-cookie";
@@ -15,13 +16,13 @@ interface RenderRowsProps {
     color: string;
 }
 const StyledRows: React.FC<RenderRowsProps> = ({Component, score, index, color}) => {
-
+    let style = {color: color, borderBottom: 'none'}
     return(
         <TableRow>
-        <Component style={{color: color, borderBottom: 'none'}}>{index}</Component>
-        <Component style={{color: color, borderBottom: 'none'}}>{score.wpm}</Component>
-        <Component style={{color: color, borderBottom: 'none'}}>{score.accuracy}</Component>
-        <Component style={{color: color, borderBottom: 'none'}}>{score.date}</Component>
+        <Component style={style}>{index}</Component>
+        <Component style={style}>{score.wpm}</Component>
+        <Component style={style}>{score.accuracy}</Component>
+        <Component style={style}>{score.date}</Component>
         </TableRow>
     )
 }
@@ -49,7 +50,7 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
     return(
         <>
         {renderScores(scores, settings.stickyScores, score) &&
-            <Box component={Grid} boxShadow={4} className={styles.root}>
+            <Box component={Grid} boxShadow={6} className={styles.root}>
             
                 <TableContainer component={Card} variant="outlined">
                 <Table size="small" aria-label="simple table" >
@@ -64,10 +65,10 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
                     {scores && scores.map((item, index) => {
                         if(index === 0){
                             if(score && score.wpm >= item.wpm) {
+                                console.log('high score');
                                 !scoreAlert && setScoreAlert(true)
                                 return <StyledRows key={index} Component={TableCell} color={theme.palette.primary.main} score={item} index={index + 1}/>
-                            }
-                                
+                            } 
                         }else{
                             if(score && item.id === score.id) 
                                 return <StyledRows key={index} Component={TableCell} color={theme.palette.text.secondary} score={item} index={index + 1}/>
@@ -77,16 +78,21 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
                     </TableBody>
                 </Table>
             </TableContainer> 
+            <Button onClick={()=>setScoreAlert(true)}>{scoreAlert.toString()}</Button>
         </Box>
         }
         <Snackbar 
                 open={scoreAlert} 
-                autoHideDuration={1000} 
+                autoHideDuration={3000}
+                style={{paddingBottom: 80}} 
                 anchorOrigin={{horizontal: 'center', vertical: 'bottom'}}
-                onClose={()=>setScoreAlert(false)} 
+                onClose={()=>{
+                    setScoreAlert(false)
+                    console.log('Setting false')
+                }} 
                 TransitionComponent={Slide}
             >
-                <Alert severity="success" variant="filled" style={{backgroundColor: theme.palette.secondary.main}}>New High Score of {score && score.wpm} WPM!</Alert>
+                <Alert icon={<SportsScoreIcon fontSize='inherit'/>}severity="success" variant="filled" style={{backgroundColor: theme.palette.secondary.main}}>New High Score of {score && score.wpm} WPM!</Alert>
             </Snackbar>
         </>
     
@@ -96,6 +102,6 @@ const useStyles = makeStyles((theme: Theme) =>
 createStyles({
     root: {
         marginTop: 20,
-        marginBottom: 100,
+        marginBottom: 110,
     }
 }))

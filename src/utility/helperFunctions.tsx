@@ -1,3 +1,4 @@
+import { adaptV4Theme } from "@mui/material";
 import Cookies, { Cookie } from "universal-cookie";
 import { v4 } from "uuid";
 import { COOKIE_SCORES, NUM_HIGH_SCORES, TYPING_CARD_INITIAL_STATE, WORD_POOL } from "./constants";
@@ -45,50 +46,54 @@ export function easyMode(numWords?: number){
         return {content: arrOut, author: ''};
 }
 
-export function typingCardReducer(state: TypingInitialState, action: ReducerAction): TypingInitialState{
-    const {type, payLoad} = action;
-    const {userString, test, time} = state;
-    var dt = new Date();
-    let dateString =+ dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    switch(type){
-        case 'reset':
-            return {
-                ...TYPING_CARD_INITIAL_STATE,
-                test: payLoad.content,
-                author: payLoad.author,
-                score: null,
-            }
-        case 'setAndClear':
-            let output = {...state, input: payLoad};
-            if(/\s/g.test(payLoad)){
-                output = {
-                    ...output,
-                    input: '',
-                    userString: [...userString,payLoad.slice(0,-1)]
-                }
-                if(userString.length === test!.length - 1){
-                    let count = 0;
-                    let time = end();
-                    let collection = new Map();
-                    output.userString.forEach((word, index)=> collection.set(index, word));
-                    test!.forEach((word, index) => collection.get(index) === word && (count += 1));
-                    output = {
-                        ...output,
-                        time: time,
-                        score: {
-                            wpm: calculateWpm(count, time),
-                            accuracy: parseInt((100*count/test!.length).toFixed(0)),
-                            id: v4(),
-                            date: dateString,
-                        }
-                    }
-                }
-            }
-            return output
-        default:
-            return state;
-    }
-}
+// export function typingCardReducer(state: TypingInitialState, action: ReducerAction): TypingInitialState{
+//     const {type, payLoad} = action;
+//     const {userString, test, time} = state;
+//     var dt = new Date();
+//     let dateString =+ dt.getDate() + '/' + (dt.getMonth() + 1) + '/' + dt.getFullYear();
+//     switch(type){
+//         case 'reset':
+//             return {
+//                 ...TYPING_CARD_INITIAL_STATE,
+//                 test: payLoad.content,
+//                 author: payLoad.author,
+//                 score: null,
+//             }
+//         case 'set':
+//             return {
+//                 ...payLoad
+//             }
+//         case 'setAndClear':
+//             let output = {...state, input: payLoad};
+//             if(/\s/g.test(payLoad)){
+//                 output = {
+//                     ...output,
+//                     input: '',
+//                     userString: [...userString,payLoad.slice(0,-1)]
+//                 }
+//                 if(userString.length === test!.length - 1){
+//                     let count = 0;
+//                     let time = end();
+//                     let collection = new Map();
+//                     output.userString.forEach((word, index)=> collection.set(index, word));
+//                     test!.forEach((word, index) => collection.get(index) === word && (count += 1));
+//                     output = {
+//                         ...output,
+//                         time: time,
+//                         score: {
+//                             wpm: calculateWpm(count, time),
+//                             accuracy: parseInt((100*count/test!.length).toFixed(0)),
+//                             id: v4(),
+//                             date: dateString,
+//                         }
+//                     }
+//                 }
+//             }
+//             return output
+//         default:
+//             return state;
+//     }
+// }
 
 export const getCookieScores = (score: Score) => {
             const cookies = new Cookies();
@@ -110,14 +115,63 @@ export const getCookieScores = (score: Score) => {
             }
 
         }
-
-
+export const generateScore = (userArr: string[], testArr: string[]) => {
+    if(userArr.length === testArr.length){
+        var dt = new Date();
+        let dateString =+ dt.getDate() + '/' 
+        + (dt.getMonth() + 1) + '/' 
+        + dt.getFullYear();
+        let count = 0;
+        let endTime = end();
+        let collection = new Map();
+        userArr.forEach((word, index)=> collection.set(index, word));
+        testArr.forEach((word, index) => collection.get(index) === word && (count += 1));
+        let acc = parseInt((100*count/testArr.length).toFixed(0));
+        return {
+            score:{
+                wpm: calculateWpm(count, endTime),
+                accuracy: acc,
+                id: v4(),
+                date: dateString,
+            }
+        }
+    }
+}
+//testing for after the first round if there is a new highscore, used in the typing card to decide bonus.
+export const testNewHighScore = (score: Score) => {
+    const cookies = new Cookies();
+    const storedCookie = cookies.get(COOKIE_SCORES);
+    if(storedCookie){
+        return score.wpm >= storedCookie[0].wpm
+    } 
+    else{
+        return false;
+    } 
+}
+export const doWordsMatch = (a?: string[], b?: string[]) => {
+    if(a && b){
+        let i = a.length - 1;
+        if(a[i]){
+            return a[i] === b[i];
+        }
+    }else return false
+}
 export const renderScores = (scores: Score[] | null, stickyScores: boolean, score: Score | null, reset?: boolean) => {
+    //scores.forEach((item) => {})
     if(stickyScores && scores) {
         return true
     }
     if(!stickyScores && score && scores){
-        return true
+        if(scores.length < NUM_HIGH_SCORES){
+            return true
+        }
+        let show = false;
+        scores.forEach((item) => {
+            if(score.wpm >= item.wpm){
+                show = true;
+            }
+        })
+        return show;
     } 
     else{
         return false
