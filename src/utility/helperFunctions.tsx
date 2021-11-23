@@ -177,3 +177,12 @@ export const renderScores = (scores: Score[] | null, stickyScores: boolean, scor
         return false
     } 
 }
+export const fizzBuzz = (num: number) => {
+    let output = ""
+    for(let i = 0; i < num; i++){
+        i % 3 === 0 && (output += "Fizz")
+        i % 5 === 0 && (output += "Buzz")
+        output === "" && (output = i.toString())
+        console.log(output)
+    }
+}

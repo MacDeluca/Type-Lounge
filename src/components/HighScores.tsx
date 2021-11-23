@@ -78,7 +78,6 @@ export const HighScores: React.FC<HighScoresProps> = ({score}) => {
                     </TableBody>
                 </Table>
             </TableContainer> 
-            <Button onClick={()=>setScoreAlert(true)}>{scoreAlert.toString()}</Button>
         </Box>
         }
         <Snackbar 

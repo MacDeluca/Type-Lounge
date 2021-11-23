@@ -22,6 +22,7 @@ export interface TypingInitialState {
     userString: string[];
     //time: number | null;
     score: Score | null;
+    bonus: number;
 }
 
 export interface ColourTheme {

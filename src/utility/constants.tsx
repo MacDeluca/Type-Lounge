@@ -16,6 +16,7 @@ test: {content: [], author: ''},
 userString: [],
 //time: null,
 score: null,
+bonus: 0,
 }
 export const WORD_POOL = ['the',
 'of',

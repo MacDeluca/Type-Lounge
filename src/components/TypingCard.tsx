@@ -34,8 +34,7 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
     const {settings, setSettings} = useContext(SettingsContext);
     const [input, setInput] = useState('');
     const [typingState, setTypingState] = useState<TypingInitialState>(TYPING_CARD_INITIAL_STATE);
-    const {test, userString, score} = typingState;
-
+    const {test, userString, score, bonus} = typingState;
 
     const handleInput = (key: string) => {
         setInput(key);
@@ -54,16 +53,30 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
         inputRef.current?.focus();
         setTypingState({...TYPING_CARD_INITIAL_STATE, test: settings.easyMode ? easyMode(settings.wordCount) : await hardMode()})
     }
-    useEffect(() => {
-        if(doWordsMatch(userString, test.content)) setSpawn({spawn: !spawn, num: 1}); //Function took: 0.15
+    const handleBallsAndScore = () => {
+        if(doWordsMatch(userString, test.content)) {
+            setSpawn({spawn: !spawn, num: 1}); //Function took: 0.15
+            setTypingState({...typingState, bonus: typingState.bonus += 1})
+        }
         
         let genScore = generateScore(userString, test.content); //Function took: 0.2999999523162842
         if(genScore){
             let {score} = genScore;
-            if(score.accuracy >= MIN_ACCURACY && score.wpm >= MIN_WPM) setSpawn({spawn: !spawn, num: test.content.length + 1})
-            if(testNewHighScore(score)) setSpawn ({spawn: !spawn, num: test.content.length * 2})
+            if(score.accuracy >= MIN_ACCURACY && score.wpm >= MIN_WPM) {
+                setSpawn({spawn: !spawn, num: bonus + 1})
+            }else{
+                console.log('here');
+                setTypingState({...typingState, bonus: typingState.bonus = 0})
+            }
+            if(testNewHighScore(score)){
+                setTypingState({...typingState, bonus: typingState.bonus *= 2})
+                setSpawn ({spawn: !spawn, num: bonus * 2})
+            } 
             setTypingState({...typingState, score: score});
+        }
     }
+    useEffect(() => {
+        handleBallsAndScore();
     },[userString])
     useEffect(() => {
         reset();
@@ -72,7 +85,8 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
         <Grow in={true} timeout={600}>
         <Grid container direction="column" alignItems="center" spacing={3} className={style.root}>
             <div className={style.card}>
-            {score ? <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
+            {score ? 
+            <Typography className={style.wpm} gutterBottom style={{color: theme.palette.text.primary}}>
                 <span style={{color:theme.palette.primary.main}}>{score.wpm}</span> wpm  | 
                 <span style ={{color:theme.palette.primary.main}}> {score.accuracy}</span> % 
                 {/* <span style ={{color:theme.palette.primary.main}}> {(time!/1000).toFixed(1)}</span> secs */}
@@ -83,12 +97,15 @@ export const TypingCard: React.FC<TypingCardProps> = ({setSpawn, spawn}) => {
                     <Card variant="outlined" style={{backgroundColor: theme.palette.background.paper}}>
                     {test && <StyledLinearProgress value={normalize(userString.length, test.content.length)} variant="determinate" />}
                         <CardContent>
-                        <div className={style.wpm} style={{color: theme.palette.text.secondary}}>Bonus: </div>
+                        {userString.length > 0 && 
+                        <Typography className={style.wpm}>Bonus: 
+                        <span style={{color: theme.palette.primary.main}}> {bonus}</span>
+                        </Typography>}
                             <Typography className={style.test}>
                                 {test && test.content.map((word, index) => {
                                     let color;
                                     let wordWithSpaces = word + '\xa0'
-                                    index === userString.length && (color = theme.palette.secondary.main);
+                                    if(index === userString.length) color = theme.palette.secondary.main
                                     index < userString.length && (color = (word === userString[index] ? theme.palette.text.secondary : theme.palette.error.main));
                                     return <span key={index} style={{ color: color}}>{wordWithSpaces} </span>
                                 })}

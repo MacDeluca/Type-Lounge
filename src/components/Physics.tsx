@@ -151,7 +151,7 @@ export const MatterStepThree = () => {
     let boundaryOptions = {
       isStatic: true,
       render: {
-        fillStyle: 'blue',
+        fillStyle: 'transparent',
       },
     }
     const floor = Bodies.rectangle(0, 0, 0, STATIC_DENSITY, boundaryOptions)
