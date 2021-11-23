@@ -22,7 +22,7 @@ function App() {
     {
       easyMode: true,
       playlist: 'lo-fi',
-      wordCount: NUM_WORDS[0],
+      wordCount: NUM_WORDS[3],
       darkMode: true,
       stickyScores: true,
       reset: false,
